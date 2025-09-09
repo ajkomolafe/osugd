@@ -23,7 +23,6 @@ router.get("/", async (req, res) => {
                 code: code,
                 grant_type: "authorization_code",
                 })
-            console.log("Response")
             const expiresIn = response.data.expires_in
             const accessToken = response.data.access_token
             const refreshToken = response.data.refresh_token
@@ -46,6 +45,7 @@ router.get("/", async (req, res) => {
             if (err.status != null){
                 res.status(response_codes.BAD_REQUEST).json({
                     message: err.message,
+                    hint: "ogd: code is likely expired, request a new one"
                 })
             }
             else {
@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
     }
     else {
         res.status(400).json({
-            message: "missing oauth code, should be given as query parameter"
+            message: "ogd: missing oauth code, should be given as query parameter"
         })
     }
 })
