@@ -1,7 +1,11 @@
-require("dotenv").config();
-const mongoClient = require('mongoose');
-const express = require("express");
-const mongoose = require("mongoose");
+import dotenv from "dotenv"
+import mongoClient from "mongoose"
+import express from "express"
+import mongoose from "mongoose"
+import userRouter from "./users/users.js"
+import authRouter from "./auth/auth.js"
+
+dotenv.config()
 const api = express();
 
 //MongoDB connection setup
@@ -12,7 +16,7 @@ db.once("open", () => console.log("Connected to Database"));
 
 //Express.js router and listening setup
 api.use(express.json());
-const userRouter = require("./users/users.js");
-api.use("/users", userRouter) //requests on localhost:3000/users go to userRouter
+api.use("/api/auth", userRouter) //requests on localhost:3000/users go to userRouter
+api.use("/api/users", userRouter) //requests on localhost:3000/users go to userRouter
 
 api.listen(3000, () => console.log("Server Started"));

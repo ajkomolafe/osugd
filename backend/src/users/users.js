@@ -1,5 +1,8 @@
-const express = require('express');
-const userSchema = require('./user.js');
+import axios from 'axios';
+import express from 'express';
+import userSchema from './user.js';
+import jwt from 'jsonwebtoken';
+
 const router = express.Router();
 
 /*Error numbers
@@ -90,4 +93,4 @@ router.delete("/:email", async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
