@@ -9,7 +9,10 @@ dotenv.config()
 const api = express();
 
 //MongoDB connection setup
-mongoose.connect(process.env.DATABASE_URI);
+mongoose.connect(process.env.DATABASE_URI, {
+    dbName: "prod",
+    serverSelectionTimeoutMS: 5000, //5 sec
+});
 const db = mongoose.connection;
 db.on("error", (error) => console.log(error));
 db.once("open", () => console.log("Connected to Database"));

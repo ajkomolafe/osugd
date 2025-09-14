@@ -1,24 +1,17 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose'
 
 //Input validation schema
-const userSchema = mongoose.Schema({
-    full_name: {
-        type: String,
+const userSchema = new mongoose.Schema({
+    id: {
+        type: Number,
         required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        lowercase: true,
         unique: true,
-        //Only @tamu.edu emails
-        match: new RegExp(".+@tamu\.edu")
     },
-
-    //Usage of auth requires setting up Azure Web Services for Microsoft Email Logins
-    auth: {
-        type: String
-    }
+    username: {
+        type: String,
+    },
 })
 
-module.exports = mongoose.model("user", userSchema);
+const User = mongoose.model("user", userSchema, "users");
+
+export default User

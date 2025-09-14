@@ -2,6 +2,7 @@ import axios from 'axios';
 import express from 'express';
 import userSchema from './user.js';
 import jwt from 'jsonwebtoken';
+import response_codes from '../response_codes.js';
 
 const router = express.Router();
 
@@ -11,86 +12,94 @@ const router = express.Router();
 500~ Server fault
 */
 
-//Get users, may or may not have parameters
-//TODO: paginate
-router.get("/", async (req, res) => {
-    console.log("GET /users " + JSON.stringify(req.query));
-    try {
-        //Requesting one user with query (?=) syntax
-        if (req.query.email != null){
-            const user = await userSchema.findOne({ email: req.query.email });
-            if (user != null){
-                res.status(200).json(user);
-            }
-            else {
-                return res.status(404).json({ message: "User does not exist" });
-            }
-        }
-
-        //Requesting all users
-        else {
-            console.log("All Users");
-            const allUsers = await userSchema.find();
-            res.json(allUsers);
+function getCookie(req, name) {
+    // user=someone; session=mySessionID
+    if (req.headers.cookie == null){
+        return null
+    }
+    const cookies = req.headers.cookie.split('; ');
+    for (const cookie of cookies){
+        if (cookie.startsWith(name)){
+            return cookie.substring(name.length + 1, cookie.length)
         }
     }
-    catch (err) {
-        res.status(500).json({
-            message: err.message
+    return null
+}
+
+router.get("/me", async (req, res) => {
+    console.log("GET /api/users/me")
+    const cookie = getCookie(req, "session")
+    if (cookie == null) {
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "missing cookie"
+        })
+    }
+    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "cookie is an invalid format"
+        })
+    }
+    try {
+        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+        // const id = response.data.id
+        const username = response.data.username
+        const avatar_url = response.data.avatar_url
+
+        return res.status(response_codes.OK).json({
+            username: username,
+            avatar_url: avatar_url,
         });
     }
-});
-
-//Create a user, json as param
-router.post("/", async (req, res) => {
-    const user = new userSchema({
-        full_name: req.body.full_name,
-        email: req.body.email,
-        auth: ""
-    });
-
-    try {
-        const savedStatus = await user.save();
-        res.status(201).json(savedStatus);
-    }
     catch (err) {
-        res.status(400).json({ message: err.message });
+        console.log("Error: " + err.message)
+        //api request failure
+        if (err.status != null){
+            return res.status(response_codes.BAD_REQUEST).json({
+                message: err.message,
+                hint: "cookie is likely expired"
+            })
+        }
+        return res.status(response_codes.SERVER_ERROR).json({
+            message: err.message,
+        })
     }
-});
+})
 
-//Update one user
-//Uses patch to not overwrite info already there
-router.patch("/:email", async (req, res) => {
-    try {
-        var user = await userSchema.findOne({ email: req.params.email });
-        if (req.body.full_name != null){
-            user.full_name = req.body.full_name;
-        }
-        const updateStatus = user.save();
-        res.json(updateStatus);
-    }
-    catch (err){
-        res.status(400).json({ message: err.message });
-    }
-});
+// //Create a user, json as param
+// router.post("/", async (req, res) => {
+//     const user = new userSchema({
+//         full_name: req.body.full_name,
+//         email: req.body.email,
+//         auth: ""
+//     });
 
-//Delete one user
-router.delete("/:email", async (req, res) => {
-    try {
-        const user = await userSchema.findOne({ email: req.params.email });
-        if (user == null){
-            res.status(404).json("User does not exist");
-            return;
-        }
-        else {
-            //Remove is deprecated, use deleteOne
-            await userSchema.deleteOne({ email: req.params.email });
-            res.json("Deleted User");
-        }
-    }
-    catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+//     try {
+//         const savedStatus = await user.save();
+//         res.status(201).json(savedStatus);
+//     }
+//     catch (err) {
+//         res.status(400).json({ message: err.message });
+//     }
+// });
+
+// //Update one user
+// router.patch("/:email", async (req, res) => {
+//     try {
+//         var user = await userSchema.findOne({ email: req.params.email });
+//         if (req.body.full_name != null){
+//             user.full_name = req.body.full_name;
+//         }
+//         const updateStatus = user.save();
+//         res.json(updateStatus);
+//     }
+//     catch (err){
+//         res.status(400).json({ message: err.message });
+//     }
+// });
 
 export default router;
