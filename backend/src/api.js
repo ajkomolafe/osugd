@@ -1,5 +1,5 @@
 import dotenv from "dotenv"
-import mongoClient from "mongoose"
+import cors from "cors"
 import express from "express"
 import mongoose from "mongoose"
 import userRouter from "./users/users.js"
@@ -18,6 +18,10 @@ db.on("error", (error) => console.log(error));
 db.once("open", () => console.log("Connected to Database"));
 
 //Express.js router and listening setup
+api.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+}))
 api.use(express.json());
 api.use("/api/auth", authRouter) //requests on localhost:3000/users go to userRouter
 api.use("/api/users", userRouter) //requests on localhost:3000/users go to userRouter

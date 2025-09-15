@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { BACKEND_ADDRESS } from '$env/static/private';
+import { VITE_BACKEND_ADDRESS } from '$env/static/private';
 import { redirect, isRedirect } from '@sveltejs/kit';
 
 // try getuser with session, if expired, get cookie and retry
 
 async function getCookie(cookies, code){
-    let response = await axios.get(BACKEND_ADDRESS + "/api/auth", { 
+    let response = await axios.get(VITE_BACKEND_ADDRESS + "/api/auth", { 
         params: {
             code: code,
         },
@@ -21,7 +21,7 @@ async function getCookie(cookies, code){
 }
 
 async function getUser(session){
-    let response = await axios.get(BACKEND_ADDRESS + "/api/users/me", {
+    let response = await axios.get(VITE_BACKEND_ADDRESS + "/api/users/me", {
         headers: {
             'Cookie': "session=" + session
         }

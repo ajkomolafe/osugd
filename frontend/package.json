@@ -10,11 +10,13 @@
 		"prepare": "svelte-kit sync || echo ''"
 	},
 	"devDependencies": {
-		"@lucide/svelte": "^0.542.0",
+		"@internationalized/date": "^3.9.0",
+		"@lucide/svelte": "^0.515.0",
 		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@tailwindcss/vite": "^4.0.0",
+		"bits-ui": "^2.9.8",
 		"clsx": "^2.1.1",
 		"svelte": "^5.0.0",
 		"tailwind-merge": "^3.3.1",

@@ -27,7 +27,6 @@ function getCookie(req, name) {
 }
 
 router.get("/me", async (req, res) => {
-    console.log("GET /api/users/me")
     const cookie = getCookie(req, "session")
     if (cookie == null) {
         return res.status(response_codes.BAD_REQUEST).json({
@@ -46,9 +45,10 @@ router.get("/me", async (req, res) => {
                 "Authorization": "Bearer " + unhashedCookie.accessToken,
             },
         })
-        // const id = response.data.id
+
         const username = response.data.username
         const avatar_url = response.data.avatar_url
+        console.log("GET /api/users/me\n\tuser: " + username)
 
         return res.status(response_codes.OK).json({
             username: username,
@@ -70,22 +70,113 @@ router.get("/me", async (req, res) => {
     }
 })
 
-// //Create a user, json as param
-// router.post("/", async (req, res) => {
-//     const user = new userSchema({
-//         full_name: req.body.full_name,
-//         email: req.body.email,
-//         auth: ""
-//     });
+function parseLink(link){
+    const beatmapsetsPrefix = "https://osu.ppy.sh/beatmapsets/";
+    const sPrefix = "https://osu.ppy.sh/s/"
+    
+    if (link.startsWith(beatmapsetsPrefix)){
+        let id = link.substring(beatmapsetsPrefix.length);
+        const hashIndex = id.indexOf('#');
+        if (hashIndex !== -1){
+            id = id.substring(0, hashIndex);
+        }
+        return id;
+    }
+    else if (!link.startsWith(sPrefix)){
+        let id = link.substring(sPrefix.length);
+        const hashIndex = id.indexOf('#');
+        if (hashIndex !== -1){
+            id = id.substring(0, hashIndex);
+        }
+        return id;
+    }
+    return null
+}
 
+//Create a user, json as param
+router.post("/add_beatmapset", async (req, res) => {
+    const link = req.body.link
+    const difficulty = req.body.difficulty
+    console.log("GET /api/users/me\n\tlink: " + link + "\n\tdifficulty: " + difficulty)
+    let beatmapsetId = parseLink(link)
+
+    if (beatmapsetId == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "link is invalid"
+        })
+    }
+
+    try {
+        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+        const userId = response.data.id
+
+        response = await axios.get("https://osu.ppy.sh/api/v2/beatmapsets/" + beatmapsetId, {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+
+        console.log(response.data)
+        res.status(response_codes.OK)
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// router.get("/beatmaps", async (req, res) => {
+//     const type = req.query.type
+//     if (type != "graved" || type != "pending" || type != "ranked"){
+//         return res.status(response_codes.BAD_REQUEST).json({
+//             hint: "invalid beatmap type"
+//         })
+//     }
+//     const cookie = getCookie(req, "session")
+//     if (cookie == null) {
+//         return res.status(response_codes.BAD_REQUEST).json({
+//             hint: "missing cookie"
+//         })
+//     }
+//     const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+//     if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+//         return res.status(response_codes.BAD_REQUEST).json({
+//             hint: "cookie is an invalid format"
+//         })
+//     }
 //     try {
-//         const savedStatus = await user.save();
-//         res.status(201).json(savedStatus);
+//         let response = await axios.get("https://osu.ppy.sh/api/v2/beatmaps/" + , {
+//             headers: {
+//                 "Authorization": "Bearer " + unhashedCookie.accessToken,
+//             },
+//         })
+//         // const id = response.data.id
+//         const username = response.data.username
+//         const avatar_url = response.data.avatar_url
+//         console.log("GET /api/users/me\n\tuser: " + username)
+
+//         return res.status(response_codes.OK).json({
+//             username: username,
+//             avatar_url: avatar_url,
+//         });
 //     }
 //     catch (err) {
-//         res.status(400).json({ message: err.message });
+//         console.log("Error: " + err.message)
+//         //api request failure
+//         if (err.status != null){
+//             return res.status(response_codes.BAD_REQUEST).json({
+//                 message: err.message,
+//                 hint: "cookie is likely expired"
+//             })
+//         }
+//         return res.status(response_codes.SERVER_ERROR).json({
+//             message: err.message,
+//         })
 //     }
-// });
+// })
 
 // //Update one user
 // router.patch("/:email", async (req, res) => {

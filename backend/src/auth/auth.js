@@ -12,38 +12,38 @@ const router = express.Router();
 //     refreshToken
 // }
 
-async function initUser(cookie){
-    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
-    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
-        return new Error("initUser: Cookie has invalid format")
-    }
-    try {
-        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
-            headers: {
-                "Authorization": "Bearer " + unhashedCookie.accessToken,
-            },
-        })
-        const id = response.data.id
-        const username = response.data.username
+// async function initUser(cookie){
+//     const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+//     if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+//         return new Error("initUser: Cookie has invalid format")
+//     }
+//     try {
+//         let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+//             headers: {
+//                 "Authorization": "Bearer " + unhashedCookie.accessToken,
+//             },
+//         })
+//         const id = response.data.id
+//         const username = response.data.username
 
-        async function asyncSaveUser(id, username) {
-            // Updates if it exists with id as the search, otherwise creates the object (upsert)
-            // can add other user information here from response.data, will not be returned to the client but put in db
-            await User.updateOne(
-            { id: id },
-            { username: username, },
-            { upsert: true }
-            ).catch((err) => {
-                console.log(err)
-            })
-            console.log("User " + username + " was saved.")
-        }
-        asyncSaveUser(id, username)
-    }
-    catch (err) {
-        console.log(err)
-    }
-}
+//         async function asyncSaveUser(id, username) {
+//             // Updates if it exists with id as the search, otherwise creates the object (upsert)
+//             // can add other user information here from response.data, will not be returned to the client but put in db
+//             await User.updateOne(
+//             { id: id },
+//             { username: username, },
+//             { upsert: true }
+//             ).catch((err) => {
+//                 console.log(err)
+//             })
+//             console.log("User " + username + " was saved.")
+//         }
+//         asyncSaveUser(id, username)
+//     }
+//     catch (err) {
+//         console.log(err)
+//     }
+// }
 
 //Generates session JWT given code from server
 router.get("/", async (req, res) => {
@@ -75,7 +75,6 @@ router.get("/", async (req, res) => {
         catch (err) {
             console.log("Error: " + err.message)
             console.log(err.response.data)
-            //api request failure
             if (err.status != null){
                 return res.status(response_codes.BAD_REQUEST).json({
                     message: err.message,
