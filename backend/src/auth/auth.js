@@ -2,6 +2,7 @@ import axios from 'axios';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import response_codes from '../response_codes.js';
+import updateUser from '../users/asyncUpdateUser.js'
 
 const router = express.Router();
 
@@ -12,40 +13,7 @@ const router = express.Router();
 //     refreshToken
 // }
 
-// async function initUser(cookie){
-//     const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
-//     if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
-//         return new Error("initUser: Cookie has invalid format")
-//     }
-//     try {
-//         let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
-//             headers: {
-//                 "Authorization": "Bearer " + unhashedCookie.accessToken,
-//             },
-//         })
-//         const id = response.data.id
-//         const username = response.data.username
-
-//         async function asyncSaveUser(id, username) {
-//             // Updates if it exists with id as the search, otherwise creates the object (upsert)
-//             // can add other user information here from response.data, will not be returned to the client but put in db
-//             await User.updateOne(
-//             { id: id },
-//             { username: username, },
-//             { upsert: true }
-//             ).catch((err) => {
-//                 console.log(err)
-//             })
-//             console.log("User " + username + " was saved.")
-//         }
-//         asyncSaveUser(id, username)
-//     }
-//     catch (err) {
-//         console.log(err)
-//     }
-// }
-
-//Generates session JWT given code from server
+//Generates session JWT given code from server, will create/upsert an account in the db so user can request their maps
 router.get("/", async (req, res) => {
     console.log("GET /api/auth/?code={code}")
     let code = req.query.code
@@ -66,6 +34,8 @@ router.get("/", async (req, res) => {
                 accessToken: accessToken,
                 refreshToken: refreshToken,
             }, process.env.JWT_SECRET)
+
+            updateUser(cookie)
 
             return res.status(response_codes.OK).json({
                 session: cookie,
