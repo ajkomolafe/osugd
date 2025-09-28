@@ -12,12 +12,15 @@ async function getCookie(cookies, code){
         withCredentials: true, 
     })
     
+    // This does not set the cookie for the current request, but for the next one (set cookie header used)
+    // so return the provided cookie and use that in the getUser
     cookies.set("session", response.data.session, {
         path: '/',
         httpOnly: true,
         sameSite: 'strict',
         maxAge: 60 * 60 * 24 // 1 day
     });
+    // return response.data.session;
 }
 
 async function getUser(session){
@@ -34,7 +37,7 @@ async function getUser(session){
         user: {
             username: username,
             avatar_url: avatar_url,
-        }
+        },
     }
 }
 
@@ -56,14 +59,14 @@ export async function load({ cookies, url }) {
     if (code != null){
         try {
             await getCookie(cookies, code)
-            console.log(url.pathname)
-            throw redirect(302, url.pathname, { reload: true }); //doesnt call load again it seems
+            session = cookies.get("session");
+            let res = await getUser(session)
+            if (res.user != null){
+                return res
+            }
         }
         catch (err) {
-            if (isRedirect(err)){
-                throw err;
-            }
-            else if (err.response != null){
+            if (err.response != null){
                 console.log(err.response.data)
             } 
             else {

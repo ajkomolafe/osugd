@@ -3,6 +3,7 @@ import express from 'express';
 import Beatmapset from './beatmapset.js'
 import jwt from 'jsonwebtoken';
 import response_codes from '../response_codes.js';
+import getUpdateUser from './getAsyncUpdateUser.js'
 
 const router = express.Router();
 
@@ -26,6 +27,8 @@ function getCookie(req, name) {
     return null
 }
 
+// Log format:
+// console.log("GET /api/users/me\n\t)
 router.get("/me", async (req, res) => {
     const cookie = getCookie(req, "session")
     if (cookie == null) {
@@ -33,12 +36,23 @@ router.get("/me", async (req, res) => {
             hint: "missing cookie"
         })
     }
-    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
-    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+
+    let unhashedCookie;
+    try {
+        unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+        if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+            return res.status(response_codes.BAD_REQUEST).json({
+                hint: "cookie is an invalid format"
+            })
+        }   
+    }
+    catch {
+        console.log("GET /api/users/me\n\tErr: cookie isn't an actual cookie (jwt malformed)")
         return res.status(response_codes.BAD_REQUEST).json({
             hint: "cookie is an invalid format"
         })
     }
+
     try {
         let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
             headers: {
@@ -172,54 +186,59 @@ router.post("/add_beatmapset", async (req, res) => {
     }
 });
 
-// router.get("/beatmaps", async (req, res) => {
-//     const type = req.query.type
-//     if (type != "graved" || type != "pending" || type != "ranked"){
-//         return res.status(response_codes.BAD_REQUEST).json({
-//             hint: "invalid beatmap type"
-//         })
-//     }
-//     const cookie = getCookie(req, "session")
-//     if (cookie == null) {
-//         return res.status(response_codes.BAD_REQUEST).json({
-//             hint: "missing cookie"
-//         })
-//     }
-//     const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
-//     if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
-//         return res.status(response_codes.BAD_REQUEST).json({
-//             hint: "cookie is an invalid format"
-//         })
-//     }
-//     try {
-//         let response = await axios.get("https://osu.ppy.sh/api/v2/beatmaps/" + , {
-//             headers: {
-//                 "Authorization": "Bearer " + unhashedCookie.accessToken,
-//             },
-//         })
-//         // const id = response.data.id
-//         const username = response.data.username
-//         const avatar_url = response.data.avatar_url
-//         console.log("GET /api/users/me\n\tuser: " + username)
+router.get("/get_beatmapsets", async (req, res) => {
+    const type = req.query.type
+    if (type != "graved" && type != "pending" && type != "ranked"){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "invalid beatmap type"
+        })
+    }
 
-//         return res.status(response_codes.OK).json({
-//             username: username,
-//             avatar_url: avatar_url,
-//         });
-//     }
-//     catch (err) {
-//         console.log("Error: " + err.message)
-//         //api request failure
-//         if (err.status != null){
-//             return res.status(response_codes.BAD_REQUEST).json({
-//                 message: err.message,
-//                 hint: "cookie is likely expired"
-//             })
-//         }
-//         return res.status(response_codes.SERVER_ERROR).json({
-//             message: err.message,
-//         })
-//     }
-// })
+    const cookie = getCookie(req, "session")
+    if (cookie == null) {
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "missing cookie"
+        })
+    }
+
+    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "cookie is an invalid format"
+        })
+    }
+
+    try {
+        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+        const user_id = response.data.id
+
+        const beatmapsets = await Beatmapset.find({
+            ogd_user_id: user_id,
+            status: type,
+        }).limit(3);
+
+        return res.status(response_codes.OK).json({
+            beatmapsets: beatmapsets
+        });
+    }
+
+    catch (err) {
+        console.log("Error: " + err.message)
+        //api request failure
+        if (err.status != null){
+            return res.status(response_codes.BAD_REQUEST).json({
+                message: err.message,
+                hint: "cookie is likely expired"
+            })
+        }
+        return res.status(response_codes.SERVER_ERROR).json({
+            message: err.message,
+        })
+    }
+})
 
 export default router;

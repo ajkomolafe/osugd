@@ -2,7 +2,7 @@ import axios from 'axios';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import response_codes from '../response_codes.js';
-import updateUser from '../users/asyncUpdateUser.js'
+import getUpdateUser from '../users/getAsyncUpdateUser.js'
 
 const router = express.Router();
 
@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
                 refreshToken: refreshToken,
             }, process.env.JWT_SECRET)
 
-            updateUser(cookie)
+            getUpdateUser(cookie)
 
             return res.status(response_codes.OK).json({
                 session: cookie,

@@ -2,7 +2,6 @@
 	import '../app.css'
 	import axios from 'axios';
 	import favicon from '$lib/assets/white.svg'
-	import default_beatmap from '$lib/assets/default_beatmap.png'
 
   	import { Button, buttonVariants } from "$lib/components/ui/button/index.js"
 	import { Input } from "$lib/components/ui/input/index.js"
@@ -13,6 +12,7 @@
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
     import { invalidateAll } from '$app/navigation';
 	import { cn } from '$lib/utils.js';
+	import { browser } from '$app/environment';
 
   	const client_id = import.meta.env.VITE_CLIENT_ID
 	const backend_address = import.meta.env.VITE_BACKEND_ADDRESS
@@ -21,6 +21,12 @@
 	let link = $state("")
 	let difficulty = $state("")
 	let dialogOpen = $state(false)
+
+	//remove code query param
+	if (browser){
+		data.origin = window.location.origin
+		window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
+	}
 
 	async function addBeatmapset() {
 		const response = await fetch('/api/add_beatmapset', {
@@ -73,7 +79,9 @@
 	<header class="flex justify-between items-center mb-8 outline p-4 rounded-lg">
 		<div class="flex items-center gap-4">
 			<!-- <img src={favicon} alt="ogd logo" class="h-14" /> -->
-			<h1 class="text-3xl font-bold">ogd</h1>
+			 <a href={data.origin}>
+				<h1 class="text-3xl font-bold hover:text-gray-400 transition-colors">ogd</h1>
+			</a>
 		</div>
 		<div class="flex items-center gap-4">
 			{#if data.user != null}
