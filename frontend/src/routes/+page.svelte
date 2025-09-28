@@ -1,6 +1,7 @@
 <script lang="js">
     import BeatmapCard from '$lib/components/BeatmapCard.svelte'
     let { data, children } = $props();
+    console.log(data.beatmapsets.pending)
 </script>
 
 {#if data.user}
@@ -8,7 +9,7 @@
         <!-- outline rounded-lg -->
         <div class="px-5 justify-between items-center w-5/16 outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
             <h1 class="text-xl font-bold p-5 text-center">Graved</h1>
-            <div class="pb-5 space-y-2">
+            <div class="pb-5 space-y-2 flex flex-col">
                 {#each data.beatmapsets.graved as bm}
                     <BeatmapCard beatmap={bm}/>
                 {/each}
@@ -16,7 +17,7 @@
         </div>
         <div class="px-5 justify-between items-center w-5/16 outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
             <h1 class="text-xl font-bold p-5 text-center">Pending</h1>
-            <div class="pb-5 space-y-2">
+            <div class="pb-5 space-y-2 flex flex-col">
                 {#each data.beatmapsets.pending as bm}
                     <BeatmapCard beatmap={bm}/>
                 {/each}
@@ -24,7 +25,7 @@
         </div>
         <div class="px-5 justify-between items-center w-5/16 outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
             <h1 class="text-xl font-bold p-5 text-center">Ranked</h1>
-            <div class="pb-5 space-y-2">
+            <div class="pb-5 space-y-2 flex flex-col">
                 {#each data.beatmapsets.ranked as bm}
                     <BeatmapCard beatmap={bm}/>
                 {/each}
