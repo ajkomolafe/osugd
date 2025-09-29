@@ -13,14 +13,13 @@ async function getBeatmapsets(session, type){
     })
 
     let beatmapsets = response.data.beatmapsets
-    while (beatmapsets.length < 2){
-        beatmapsets.push(null)
-    }
 
     return beatmapsets
 }
 
-export async function load({ cookies, url }) {
+export async function load({ parent, cookies, url }) {
+    //Waits for the cookie to be set by the layout load function
+    await parent()
     let session = cookies.get("session");
     if (session != null) {
         try {
@@ -29,6 +28,16 @@ export async function load({ cookies, url }) {
                 getBeatmapsets(session, "pending"),
                 getBeatmapsets(session, "ranked"),
             ])
+            const max_length = Math.min(Math.max(graved.length, pending.length, ranked.length), 3)
+            while (graved.length < max_length){
+                graved.push(null)
+            }
+            while (pending.length < max_length){
+                pending.push(null)
+            }
+            while (ranked.length < max_length){
+                ranked.push(null)
+            }
 
             return {
                 beatmapsets: {
@@ -39,7 +48,12 @@ export async function load({ cookies, url }) {
             }
         }
         catch (err) {
-            console.log(err.response.data)
+            if (err.response != null && err.response.data != null){
+                console.log(err.response.data)
+            } 
+            else {
+                console.log(err)
+            }
         }
     }
 

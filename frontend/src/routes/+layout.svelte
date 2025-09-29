@@ -13,6 +13,7 @@
     import { invalidateAll } from '$app/navigation';
 	import { cn } from '$lib/utils.js';
 	import { browser } from '$app/environment';
+	import { redirect, isRedirect } from '@sveltejs/kit';
 
   	const client_id = import.meta.env.VITE_CLIENT_ID
 	const backend_address = import.meta.env.VITE_BACKEND_ADDRESS
@@ -22,7 +23,11 @@
 	let difficulty = $state("")
 	let dialogOpen = $state(false)
 
-	//remove code query param
+	if (data.reload != null){ //force reload
+		
+	}
+
+	//remove code query param after load
 	if (browser){
 		data.origin = window.location.origin
 		window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
@@ -55,6 +60,7 @@
 		} else {
 			toast.success("Sucessfully added beatmapset!")
 			dialogOpen = false;
+			invalidateAll()
 		}
 	}
 
@@ -78,7 +84,6 @@
 <div class="px-40 pt-5">
 	<header class="flex justify-between items-center mb-8 outline p-4 rounded-lg">
 		<div class="flex items-center gap-4">
-			<!-- <img src={favicon} alt="ogd logo" class="h-14" /> -->
 			 <a href={data.origin}>
 				<h1 class="text-3xl font-bold hover:text-gray-400 transition-colors">ogd</h1>
 			</a>
@@ -117,11 +122,6 @@
 							<div class="grid grid-cols-4 items-center gap-4">
 								<Label for="difficulty" class="text-right">Difficulty</Label>
 								<Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={data.user.username + "'s Expert"} />
-							</div>
-						</div>
-						<div class="grid gap-4 py-4">
-							<div class="grid grid-cols-4 items-center gap-4">
-								<!-- Simple form content -->
 							</div>
 						</div>
 						<Dialog.Footer>

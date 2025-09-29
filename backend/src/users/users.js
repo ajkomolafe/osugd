@@ -152,6 +152,15 @@ router.post("/add_beatmapset", async (req, res) => {
             },
         })
 
+        let consistent_status;
+        if (response.data.status == "graveyard"){
+            consistent_status = "graveyard"
+        } else if (response.data.status == "wip" || response.data.status == "pending"){
+            consistent_status = "pending"
+        } else { //ranked, approved, qualified, loved
+            consistent_status = "ranked"
+        }
+
         // console.log(response.data)
         await Beatmapset.updateOne(
             { 
@@ -164,7 +173,7 @@ router.post("/add_beatmapset", async (req, res) => {
                 artist_unicode: response.data.artist_unicode,
                 cover: response.data.covers['card@2x'],
                 source: response.data.source,
-                status: response.data.status,
+                status: consistent_status,
                 title: response.data.title,
                 title_unicode: response.data.title_unicode,
                 creator_id: response.data.user_id,
@@ -175,14 +184,15 @@ router.post("/add_beatmapset", async (req, res) => {
                 upsert: true,
             }
         ).catch((err) => {
-            res.status(400).json({ hint: "error adding to database" });
+            console.log(err)
+            return res.status(400).json({ hint: "error adding to database" });
         })
-        console.log("Beatmapset\n\t" + response.data.title + " upserted to db")
+        console.log("\n\t" + response.data.title + " upserted to db")
 
         res.status(response_codes.OK).json()
     }
     catch (err) {
-        res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
     }
 });
 

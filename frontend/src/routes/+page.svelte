@@ -1,7 +1,6 @@
 <script lang="js">
     import BeatmapCard from '$lib/components/BeatmapCard.svelte'
     let { data, children } = $props();
-    console.log(data.beatmapsets.pending)
 </script>
 
 {#if data.user}
