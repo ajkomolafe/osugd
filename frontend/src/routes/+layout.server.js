@@ -37,7 +37,8 @@ async function getUser(session){
     }
 }
 
-export async function load({ cookies, url }) {
+export async function load({ cookies, url, depends }) {
+    depends('custom:layout');
     let session = cookies.get("session");
     if (session != null) {
         try {

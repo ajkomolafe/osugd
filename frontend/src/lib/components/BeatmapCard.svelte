@@ -18,6 +18,7 @@
     // let link = $state("")
 	let difficulty = $state(beatmap.difficulty)
 	let dialogOpen = $state(false)
+    let isHovering = $state(false)
 
     async function editBeatmapset() {
         let link = "https://osu.ppy.sh/s/" + beatmap.id
@@ -87,7 +88,17 @@
         </Dialog.Content>
     </Dialog.Root>
 
-    <div class="relative group overflow-hidden rounded-lg">
+    <!-- on click of the dialogue, the overflow thing is popping out still so get that checked -->
+
+    <div 
+        class="relative group overflow-hidden rounded-lg"
+        onmouseenter={() => { isHovering = true }}
+        onmouseleave={() => { isHovering = false }}
+        onfocusin={() => { isHovering = true }}
+        onfocusout={() => { isHovering = false }}
+        role="gridcell"
+        tabindex=-1
+    >
         <a href={"https://osu.ppy.sh/s/" + beatmap.id}>
             <div
                 style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmap.cover}')"
@@ -111,17 +122,18 @@
                 </p>
             </div>
         </a>
-        <div class="rounded-lg bg-black/90 flex flex-col justify-center items-center space-y-12 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out translate-x-full group-hover:translate-x-0">
-            <button onclick={() => { dialogOpen = true }}>
-                <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 invert cursor-pointer" />
-            </button>
+        <div 
+            class="rounded-lg bg-black/90 flex flex-col justify-center items-center space-y-12 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
+            class:translate-x-0={isHovering && !dialogOpen}
+            class:translate-x-full={!isHovering || dialogOpen}
+        >
+            {#if beatmap.status != "ranked"}
+                <button onclick={() => { dialogOpen = true; }}>
+                    <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 invert cursor-pointer" />
+                </button>
+            {/if}
             <img src={trash} alt="delete" class="w-6 h-6 filter brightness-0 invert cursor-pointer" />
         </div>
-
-
-
-
-        
     </div>
 {:else}
     <div
@@ -129,14 +141,7 @@
         class="aspect-2/1 outline rounded-lg py-2 px-4 flex flex-col justify-center"    
     >
         <p class="text-white text-sm text-center">
-            Add more beatmaps!
+            Add more beatmapsets!
         </p>
-        <!-- <p class="text-gray-300 text-xs font-bold italic">
-            {beatmap.source}
-        </p>
-        <br/>
-        <p class="text-white text-sm">
-            hosted by {beatmap.creator_username}
-        </p> -->
     </div>
 {/if}

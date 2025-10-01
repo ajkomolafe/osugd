@@ -10,7 +10,7 @@
 	import { toast } from "svelte-sonner"
 	import * as Dialog from "$lib/components/ui/dialog/index.js"
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-    import { invalidateAll } from '$app/navigation';
+    import { invalidate, invalidateAll } from '$app/navigation';
 	import { cn } from '$lib/utils.js';
 	import { browser } from '$app/environment';
 	import { redirect, isRedirect } from '@sveltejs/kit';
@@ -22,10 +22,6 @@
 	let link = $state("")
 	let difficulty = $state("")
 	let dialogOpen = $state(false)
-
-	if (data.reload != null){ //force reload
-		
-	}
 
 	//remove code query param after load
 	if (browser){
@@ -60,7 +56,7 @@
 		} else {
 			toast.success("Sucessfully added beatmapset!")
 			dialogOpen = false;
-			invalidateAll()
+			invalidate('custom:page')
 		}
 	}
 

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { BACKEND_ADDRESS } from '$env/static/private';
-// import { redirect, isRedirect } from '@sveltejs/kit';
 
 async function getBeatmapsets(session, type){
     let response = await axios.get(BACKEND_ADDRESS + "/api/users/get_beatmapsets", {
@@ -17,8 +16,10 @@ async function getBeatmapsets(session, type){
     return beatmapsets
 }
 
-export async function load({ parent, cookies, url }) {
+export async function load({ parent, cookies, url, depends }) {
     //Waits for the cookie to be set by the layout load function
+    depends('custom:layout');
+    depends('custom:page');
     await parent()
     let session = cookies.get("session");
     if (session != null) {
