@@ -1,1 +1,1 @@
-web: npm run build && node --env-file=.env build
+web: cd frontend && npm run build && node --env-file=.env build
