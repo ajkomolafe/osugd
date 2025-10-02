@@ -1,9 +1,10 @@
 import axios from 'axios';
 import express from 'express';
 import Beatmapset from './beatmapset.js'
+import Reminder from './reminder.js'
 import jwt from 'jsonwebtoken';
 import response_codes from '../response_codes.js';
-import getUpdateUser from './getAsyncUpdateUser.js'
+// import getUpdateUser from './getAsyncUpdateUser.js'
 
 const router = express.Router();
 
@@ -249,6 +250,78 @@ router.get("/get_beatmapsets", async (req, res) => {
             message: err.message,
         })
     }
+})
+
+//frequency is in seconds
+router.post("/set_reminder", async (req, res) => {
+    const frequency = req.body.frequency
+    console.log(typeof frequency)
+    if (isNaN(Number(frequency))){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "frequency is an invalid format"
+        })
+    }
+    if (frequency < 43200){ // 12 hours
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "frequency is too short. minimum of 12 hours between reminders"
+        })
+    }
+
+    const cookie = getCookie(req, "session")
+    if (cookie == null) {
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "missing cookie"
+        })
+    }
+
+    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "cookie is an invalid format"
+        })
+    }
+
+    let id;
+    try {
+        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+        id = response.data.id
+        console.log("GET /api/users/set_reminder\n\tuser: " + response.data.username + "\n\tfrequency: " + req.body.frequency)
+    }
+    catch (err) {
+        console.log("Error: " + err.message)
+        if (err.status != null){
+            return res.status(response_codes.BAD_REQUEST).json({
+                message: err.message,
+                hint: "cookie is likely expired"
+            })
+        }
+        return res.status(response_codes.SERVER_ERROR).json({
+            message: err.message,
+        })
+    }
+
+    await Reminder.updateOne(
+            { 
+                id: id,
+             },
+            { 
+                next_reminder: (Date.now() / 1000) + req.body.frequency,
+                reminder_frequency: req.body.frequency,
+            },
+            { 
+                runValidators: true,
+                upsert: true,
+            }
+        ).catch((err) => {
+            console.log(err)
+            return res.status(400).json({ hint: "error adding to database" });
+        })
+
+    return res.status(response_codes.OK).json();
 })
 
 export default router;
