@@ -17,8 +17,8 @@ db.on("error", (error) => console.log(error));
 db.once("open", () => console.log("Connected to Database"));
 
 api.use(express.json());
-api.use("/auth", authRouter) //requests on host/auth go to authRouter
-api.use("/users", userRouter) //requests on host/users go to userRouter
+api.use("/api/auth", authRouter) //requests on host/auth go to authRouter
+api.use("/api/users", userRouter) //requests on host/users go to userRouter
 
 let port = process.env.PORT;
 if (port == null || port == "") {
