@@ -27,4 +27,9 @@ api.use(express.json());
 api.use("/api/auth", authRouter) //requests on localhost:3000/users go to userRouter
 api.use("/api/users", userRouter) //requests on localhost:3000/users go to userRouter
 
-api.listen(3000, () => console.log("Server Started"));
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+
+api.listen(port, () => console.log("Server Started"));
