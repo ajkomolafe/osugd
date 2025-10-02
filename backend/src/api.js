@@ -25,21 +25,22 @@ if (port == null || port == "") {
   port = 3000;
 }
 
-api.listen(port, () => console.log("Server Started"));
+api.listen(port, () => console.log("API Started"));
 
-let client = new irc.Client('irc.ppy.sh', process.env.IRC_USERNAME, {
-    userName: process.env.IRC_USERNAME,
-    realName: process.env.IRC_USERNAME,
-    password: process.env.IRC_PASSWORD,
-    port: 6667,
-    // debug: true,
-    showErrors: false,
-    autoRejoin: true,
-    autoConnect: true,
-    secure: false,
-    retryCount: 3,
-    retryDelay: 2000,
-});
+//move to osu irc package, this package likely incompatible with osu irc
+// let client = new irc.Client('irc.ppy.sh', process.env.IRC_USERNAME, {
+//     userName: process.env.IRC_USERNAME,
+//     realName: process.env.IRC_USERNAME,
+//     password: process.env.IRC_PASSWORD,
+//     port: 6667,
+//     // debug: true,
+//     showErrors: false,
+//     autoRejoin: true,
+//     autoConnect: true,
+//     secure: false,
+//     retryCount: 3,
+//     retryDelay: 2000,
+// });
 
-await new Promise(resolve => client.on('registered', resolve));
+// await new Promise(resolve => client.on('registered', resolve));
 
