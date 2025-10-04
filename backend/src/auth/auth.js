@@ -17,13 +17,27 @@ const router = express.Router();
 router.get("/", async (req, res) => {
     console.log("GET /api/auth/?code={code}")
     let code = req.query.code
-    if (code != null){
+    if (code == null){
+        return res.status(400).json({
+            message: "missing oauth code"
+        })
+    }
+
+    let redirect_uri = req.query.redirect_uri
+    if (redirect_uri == null){
+        return res.status(400).json({
+            message: "missing redirect uri"
+        })
+    }
+
+    if (code != null && redirect_uri != null){
         try {
             let response = await axios.post("https://osu.ppy.sh/oauth/token", {
                 client_id: process.env.CLIENT_ID.toString(),
                 client_secret: process.env.CLIENT_SECRET,
                 code: code,
                 grant_type: "authorization_code",
+                redirect_uri: redirect_uri,
                 })
             const expiresIn = response.data.expires_in
             const accessToken = response.data.access_token
@@ -48,7 +62,7 @@ router.get("/", async (req, res) => {
             if (err.status != null){
                 return res.status(response_codes.BAD_REQUEST).json({
                     message: err.message,
-                    hint: "ogd: code is likely expired, request a new one"
+                    hint: "code is likely expired, request a new one"
                 })
             }
 
@@ -57,9 +71,6 @@ router.get("/", async (req, res) => {
             })
         }
     }
-    return res.status(400).json({
-        message: "ogd: missing oauth code, should be given as query parameter"
-    })
 })
 
 export default router;

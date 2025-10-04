@@ -3,10 +3,11 @@ import { BACKEND_ADDRESS } from '$env/static/private';
 
 // try getuser with session, if expired, get cookie and retry
 
-async function getCookie(cookies, code){
+async function getCookie(cookies, code, redirect_uri){
     let response = await axios.get(BACKEND_ADDRESS + "/api/auth", { 
         params: {
             code: code,
+            redirect_uri: redirect_uri,
         },
         withCredentials: true, 
     })
@@ -58,7 +59,7 @@ export async function load({ cookies, url, depends }) {
     const code = url.searchParams.get("code");
     if (code != null){
         try {
-            await getCookie(cookies, code)
+            await getCookie(cookies, code, url.origin)
             session = cookies.get("session");
             let res = await getUser(session)
             return res

@@ -3,7 +3,7 @@ import express from "express"
 import mongoose from "mongoose"
 import userRouter from "./users/users.js"
 import authRouter from "./auth/auth.js"
-import irc from 'irc'
+import Banchojs from "bancho.js"
 
 dotenv.config()
 const api = express();
@@ -16,6 +16,12 @@ const db = mongoose.connection;
 db.on("error", (error) => console.log(error));
 db.once("open", () => console.log("Connected to Database"));
 
+const client = new Banchojs.BanchoClient({ username: process.env.IRC_USERNAME, password: process.env.IRC_PASSWORD });
+client.connect().then(async () => {
+    console.log("Connected to Bancho");
+    // await client.getUser("Mildly Accurate").sendMessage("test")
+}).catch(console.error);
+
 api.use(express.json());
 api.use("/api/auth", authRouter) //requests on host/auth go to authRouter
 api.use("/api/users", userRouter) //requests on host/users go to userRouter
@@ -26,21 +32,4 @@ if (port == null || port == "") {
 }
 
 api.listen(port, () => console.log("API Started"));
-
-//move to osu irc package, this package likely incompatible with osu irc
-// let client = new irc.Client('irc.ppy.sh', process.env.IRC_USERNAME, {
-//     userName: process.env.IRC_USERNAME,
-//     realName: process.env.IRC_USERNAME,
-//     password: process.env.IRC_PASSWORD,
-//     port: 6667,
-//     // debug: true,
-//     showErrors: false,
-//     autoRejoin: true,
-//     autoConnect: true,
-//     secure: false,
-//     retryCount: 3,
-//     retryDelay: 2000,
-// });
-
-// await new Promise(resolve => client.on('registered', resolve));
 

@@ -261,9 +261,9 @@ router.post("/set_reminder", async (req, res) => {
             hint: "frequency is an invalid format"
         })
     }
-    if (frequency < 43200){ // 12 hours
+    if (frequency < 6 * 60 * 60){ // 6 hours
         return res.status(response_codes.BAD_REQUEST).json({
-            hint: "frequency is too short. minimum of 12 hours between reminders"
+            hint: "frequency is too short. minimum of 6 hours between reminders"
         })
     }
 

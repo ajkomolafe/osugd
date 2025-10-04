@@ -7,12 +7,14 @@
 	import { Input } from "$lib/components/ui/input/index.js"
   	import { Label } from "$lib/components/ui/label/index.js"
 	import { Toaster } from "$lib/components/ui/sonner/index.js"
+	import { DatePicker } from "bits-ui";
 	import { toast } from "svelte-sonner"
 	import * as Dialog from "$lib/components/ui/dialog/index.js"
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
     import { invalidate, invalidateAll } from '$app/navigation';
 	import { cn } from '$lib/utils.js';
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { redirect, isRedirect } from '@sveltejs/kit';
 
   	const client_id = import.meta.env.VITE_CLIENT_ID
@@ -21,11 +23,14 @@
 	let { data, children } = $props()
 	let link = $state("")
 	let difficulty = $state("")
-	let dialogOpen = $state(false)
+	let addBeatmapDialog = $state(false)
+	let updateReminderDialog = $state(false)
+	let updateReminderDays = $state()
+	let updateReminderHours = $state()
+	let updateReminderMins = $state()
 
 	//remove code query param after load
 	if (browser){
-		data.origin = window.location.origin
 		window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
 	}
 
@@ -70,6 +75,13 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<title>ogd</title>
+	<!-- Discord Embed Properties -->
+	<meta content="ogd" property="og:title" />
+	<meta content="ogd description :)" property="og:description" />
+	<!-- <meta content={} property="og:url" /> -->
+	<meta content={favicon} property="og:image" />
+	<meta content="#43B581" data-react-helmet="true" name="theme-color" />
 </svelte:head>
 
 <Toaster 
@@ -80,13 +92,14 @@
 <div class="px-40 pt-5">
 	<header class="flex justify-between items-center mb-8 outline p-4 rounded-lg">
 		<div class="flex items-center gap-4">
-			 <a href={data.origin}>
+			 <a href="/">
 				<h1 class="text-3xl font-bold hover:text-gray-400 transition-colors">ogd</h1>
 			</a>
 		</div>
 		<div class="flex items-center gap-4">
 			{#if data.user != null}
-				<Dialog.Root bind:open={dialogOpen}>
+				<!-- Add Beatmap Dialog -->
+				<Dialog.Root bind:open={addBeatmapDialog}>
 					<Dialog.Trigger class={cn(buttonVariants({ variant: "outline" }), "cursor-pointer h-14")}>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -125,6 +138,37 @@
 						</Dialog.Footer>
 					</Dialog.Content>
 				</Dialog.Root>
+
+				<!-- Update or set Reminder Dialog -->
+				<Dialog.Root bind:open={updateReminderDialog}>
+					<Dialog.Content class="w-150">
+						<Dialog.Header>
+							<Dialog.Title>Set Reminder Schedule</Dialog.Title>
+							<Dialog.Description>
+								Set the schedule to be reminded to complete your guest difficulties. There is a minimum of 6 hours between reminders.
+							</Dialog.Description>
+						</Dialog.Header>
+						<div class="grid gap-4 py-4">
+							<div class="grid grid-cols-4 items-center gap-4">
+								<Label for="remind-every">Remind Every:</Label>
+								<div class="col-span-3 flex items-center gap-2">
+									<Input type="number" min="0" max="7" placeholder="days" bind:value={updateReminderDays}/>
+									:
+									<Input type="number" min="0" max="23" placeholder="hours" bind:value={updateReminderHours}/>
+									:
+									<Input type="number" min="0" max="59" placeholder="mins" bind:value={updateReminderMins}/>
+								</div>
+							</div>
+							<div class="grid grid-cols-4 items-center gap-4">
+								<Label for="difficulty" class="text-right">Difficulty</Label>
+								<Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={data.user.username + "'s Expert"} />
+							</div>
+						</div>
+						<Dialog.Footer>
+							<Button type="submit" class="cursor-pointer" onclick={addBeatmapset}>Submit</Button>
+						</Dialog.Footer>
+					</Dialog.Content>
+				</Dialog.Root>
 			{/if}
 				<div class="flex items-center gap-2">
 				{#if data.user != null}
@@ -140,13 +184,15 @@
 						<DropdownMenu.Content>
 							<DropdownMenu.Label>Account</DropdownMenu.Label>
 							<DropdownMenu.Separator />
+							<DropdownMenu.Item class="cursor-pointer" onclick={() => {updateReminderDialog = true}}>Settings</DropdownMenu.Item>
+							<DropdownMenu.Separator />
 							<DropdownMenu.Item class="cursor-pointer" onclick={logout}>Logout</DropdownMenu.Item>
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
 				{:else}
 					<Button
 						variant="outline"
-						href="https://osu.ppy.sh/oauth/authorize?client_id={client_id}&response_type=code&scope=public+identify"
+						href={"https://osu.ppy.sh/oauth/authorize?client_id=" + client_id + "&response_type=code&scope=public+identify&redirect_uri=" + page.url.origin}
 						class="mr-2 h-14 p-4"
 					>
 						<img
