@@ -60,7 +60,7 @@
 			
 		} else {
 			toast.success("Sucessfully added beatmapset!")
-			dialogOpen = false;
+			addBeatmapDialog = false;
 			invalidate('custom:page')
 		}
 	}
@@ -71,6 +71,33 @@
         })
         invalidateAll()
 	}
+
+	async function addReminder() {
+		let frequency = (updateReminderDays * 24 * 60 * 60) + (updateReminderHours * 60 * 60) + (updateReminderMins * 60)
+		const response = await fetch('/api/add_reminder', {
+			method: 'POST',
+			body: JSON.stringify({ frequency }),
+			headers: {
+				'content-type': 'application/json'
+			}
+		})
+		const result = await response.json()
+		if (result.error != null){
+			if (result.error.hint.includes("frequency")){
+				toast.error("Error setting reminder frequency", {
+					description: "Make sure your frequency is valid, it should be at least 6 hours!",
+				})
+			} else {
+				toast.error("Error setting reminder frequency", {
+					description: "Error setting reminder frequency, try again later."
+				})
+			}
+			
+		} else {
+			toast.success("Sucessfully set reminder frequency!")
+			updateReminderDialog = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -78,7 +105,7 @@
 	<title>ogd</title>
 	<!-- Discord Embed Properties -->
 	<meta content="ogd" property="og:title" />
-	<meta content="ogd description :)" property="og:description" />
+	<meta content="Manager + Reminder for osu! Guest Difficulties" property="og:description" />
 	<!-- <meta content={} property="og:url" /> -->
 	<meta content={favicon} property="og:image" />
 	<meta content="#43B581" data-react-helmet="true" name="theme-color" />
@@ -93,7 +120,7 @@
 	<header class="flex justify-between items-center mb-8 outline p-4 rounded-lg">
 		<div class="flex items-center gap-4">
 			 <a href="/">
-				<h1 class="text-3xl font-bold hover:text-gray-400 transition-colors">ogd</h1>
+				<h1 class="text-3xl text-[ogd-primary] font-bold hover:text-gray-400 transition-colors">ogd</h1>
 			</a>
 		</div>
 		<div class="flex items-center gap-4">
@@ -159,13 +186,9 @@
 									<Input type="number" min="0" max="59" placeholder="mins" bind:value={updateReminderMins}/>
 								</div>
 							</div>
-							<div class="grid grid-cols-4 items-center gap-4">
-								<Label for="difficulty" class="text-right">Difficulty</Label>
-								<Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={data.user.username + "'s Expert"} />
-							</div>
 						</div>
 						<Dialog.Footer>
-							<Button type="submit" class="cursor-pointer" onclick={addBeatmapset}>Submit</Button>
+							<Button type="submit" class="cursor-pointer" onclick={addReminder}>Submit</Button>
 						</Dialog.Footer>
 					</Dialog.Content>
 				</Dialog.Root>

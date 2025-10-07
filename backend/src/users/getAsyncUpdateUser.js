@@ -1,7 +1,6 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken';
 import User from "./user.js"
-import user from './user.js';
 
 export default async function getUpdateUser(cookie){
     const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)

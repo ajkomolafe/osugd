@@ -6,7 +6,7 @@ const reminderSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    next_reminder: {
+    last_reminder: {
         type: Number,
         required: true,
     },

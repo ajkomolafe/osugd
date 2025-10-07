@@ -252,15 +252,17 @@ router.get("/get_beatmapsets", async (req, res) => {
     }
 })
 
-//frequency is in seconds
-router.post("/set_reminder", async (req, res) => {
+//all measurements are in seconds
+router.post("/add_reminder", async (req, res) => {
     const frequency = req.body.frequency
-    console.log(typeof frequency)
+    // console.log(typeof frequency)
+
     if (isNaN(Number(frequency))){
         return res.status(response_codes.BAD_REQUEST).json({
             hint: "frequency is an invalid format"
         })
     }
+    
     if (frequency < 6 * 60 * 60){ // 6 hours
         return res.status(response_codes.BAD_REQUEST).json({
             hint: "frequency is too short. minimum of 6 hours between reminders"
@@ -309,7 +311,7 @@ router.post("/set_reminder", async (req, res) => {
                 id: id,
              },
             { 
-                next_reminder: (Date.now() / 1000) + req.body.frequency,
+                last_reminder: (Date.now() / 1000),
                 reminder_frequency: req.body.frequency,
             },
             { 
