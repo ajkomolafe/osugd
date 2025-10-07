@@ -63,11 +63,11 @@ async function checkReminders() {
 			let user = await client.getUserById(Number(reminder.id))
 			await user.sendMessage(message)
 
-			await Beatmapset.findOneAndUpdate({
+			await Reminder.findOneAndUpdate({
 				id: reminder.id,
 			}, {
 				last_reminder: Date.now() / 1000,
-			})
+			}).orFail()
 
 			console.log("\tReminded user " + user.ircUsername)
 		}
