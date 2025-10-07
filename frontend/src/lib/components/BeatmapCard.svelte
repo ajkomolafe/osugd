@@ -102,7 +102,7 @@
         <a href={"https://osu.ppy.sh/s/" + beatmap.id}>
             <div
                 style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmap.cover}')"
-                class="aspect-2/1 outline rounded-lg px-4 flex flex-col justify-center"    
+                class="aspect-2/1 outline px-4 flex flex-col justify-center"    
             >
                 <h3 class="text-white font-bold text-xl/5">
                     {beatmap.title}
@@ -123,16 +123,16 @@
             </div>
         </a>
         <div 
-            class="rounded-lg bg-black/90 flex flex-col justify-center items-center space-y-12 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
+            class="rounded-lg bg-black/90 dark:bg-gray-300 flex flex-col justify-center items-center space-y-12 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
             class:translate-x-0={isHovering && !dialogOpen}
             class:translate-x-full={!isHovering || dialogOpen}
         >
             {#if beatmap.status != "ranked"}
                 <button onclick={() => { dialogOpen = true; }}>
-                    <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 invert cursor-pointer" />
+                    <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 light:invert cursor-pointer" />
                 </button>
             {/if}
-            <img src={trash} alt="delete" class="w-6 h-6 filter brightness-0 invert cursor-pointer" />
+            <img src={trash} alt="delete" class="w-6 h-6 filter brightness-0 light:invert cursor-pointer" />
         </div>
     </div>
 {:else}
