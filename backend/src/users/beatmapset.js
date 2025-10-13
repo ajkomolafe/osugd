@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 //Input validation schema
 const beatmapsetSchema = new mongoose.Schema({
-    id: { //pk
+    beatmapset_id: { //pk
         type: Number,
         required: true,
     },

@@ -31,17 +31,16 @@ if (port == null || port == "") {
 
 api.listen(port, () => console.log("API Started"));
 
-// Every 5 minutes, check if there are reminders to be sent.
+// Every hour, check if there are reminders to be sent.
 // If a reminder should be sent, get first 3 beatmap names, and send that in the message.
 async function checkReminders() {
-	console.log("Asynchronous reminder job:\n\t" + (new Date()).toString())
 	const reminders = await Reminder.find( { } ).catch((err) => {
 		console.log(err)
 	})
 	for (const reminder of reminders){
 		if ((reminder.last_reminder + reminder.reminder_frequency) < (Date.now() / 1000)){
 			const count = await Beatmapset.countDocuments({  
-				ogd_user_id: reminder.id,
+				ogd_user_id: reminder.ogd_user_id,
 				status: "pending",
 			});
 
@@ -51,7 +50,7 @@ async function checkReminders() {
 			}
 
 			const beatmapsets = await Beatmapset.find({
-				ogd_user_id: reminder.id,
+				ogd_user_id: reminder.ogd_user_id,
 				status: "pending",
 			}).limit(3);
 
@@ -60,16 +59,24 @@ async function checkReminders() {
 			let message = "ogd: You have " + count + " guest difficulty to complete: " + beatmapsets[0].creator_username + "'s " + beatmapsets[0].title + ". https://ogd.akomolafe.dev"
 			// }
 
-			let user = await client.getUserById(Number(reminder.id))
+			let user = await client.getUserById(Number(reminder.ogd_user_id))
 			await user.sendMessage(message)
 
 			await Reminder.findOneAndUpdate({
-				id: reminder.id,
+				ogd_user_id: reminder.ogd_user_id,
 			}, {
 				last_reminder: Date.now() / 1000,
 			}).orFail()
-
-			console.log("\tReminded user " + user.ircUsername)
+			
+			console.log("Reminded user " + user.ircUsername + " at " + (new Date()).toLocaleString('en-US', {
+				timeZone: 'CST',
+				timeZoneName: "short",
+				day: "numeric",
+				month: "long",
+				year: "numeric",
+				hour: "numeric",
+				minute: "numeric",
+			} ))
 		}
 	}
 

@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 //Input validation schema
 const userSchema = new mongoose.Schema({
-    id: {
+    ogd_user_id: {
         type: Number,
         required: true,
         unique: true,

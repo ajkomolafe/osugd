@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 //Input validation schema
 const reminderSchema = new mongoose.Schema({
-    id: { //pk
+    ogd_user_id: { //pk
         type: Number,
         required: true,
     },

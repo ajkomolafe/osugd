@@ -3,8 +3,8 @@ import express from 'express';
 import Beatmapset from './beatmapset.js'
 import Reminder from './reminder.js'
 import jwt from 'jsonwebtoken';
-import response_codes from '../response_codes.js';
-// import getUpdateUser from './getAsyncUpdateUser.js'
+import { getCookie } from '../cookie.js'
+import { response_codes } from '../response_codes.js';
 
 const router = express.Router();
 
@@ -14,22 +14,6 @@ const router = express.Router();
 500~ Server fault
 */
 
-function getCookie(req, name) {
-    // user=someone; session=mySessionID
-    if (req.headers.cookie == null){
-        return null
-    }
-    const cookies = req.headers.cookie.split('; ');
-    for (const cookie of cookies){
-        if (cookie.startsWith(name)){
-            return cookie.substring(name.length + 1, cookie.length)
-        }
-    }
-    return null
-}
-
-// Log format:
-// console.log("GET /api/users/me\n\t)
 router.get("/me", async (req, res) => {
     const cookie = getCookie(req, "session")
     if (cookie == null) {
@@ -72,7 +56,6 @@ router.get("/me", async (req, res) => {
     }
     catch (err) {
         console.log("Error: " + err.message)
-        //api request failure
         if (err.status != null){
             return res.status(response_codes.BAD_REQUEST).json({
                 message: err.message,
@@ -143,7 +126,7 @@ router.post("/add_beatmapset", async (req, res) => {
                 "Authorization": "Bearer " + unhashedCookie.accessToken,
             },
         })
-        const user_id = response.data.id
+        const user_id = response.data.ogd_user_id
         const username = response.data.username
         console.log("GET /api/users/add_beatmapset\n\tlink: " + link + "\n\tdifficulty: " + difficulty + "\n\tuser: " + username)
 
@@ -165,7 +148,7 @@ router.post("/add_beatmapset", async (req, res) => {
         // console.log(response.data)
         await Beatmapset.updateOne(
             { 
-                id: response.data.id,
+                beatmapset_id: response.data.id,
                 ogd_user_id: user_id,
              },
             { 
@@ -308,7 +291,7 @@ router.post("/add_reminder", async (req, res) => {
 
     await Reminder.updateOne(
             { 
-                id: id,
+                ogd_user_id: id,
              },
             { 
                 last_reminder: (Date.now() / 1000),

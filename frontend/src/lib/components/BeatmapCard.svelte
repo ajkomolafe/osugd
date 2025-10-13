@@ -52,7 +52,7 @@
 		}
 	}
     
-    // id
+    // beatmapset_id
     // ogd_user_id
     // difficulty
     // artist
@@ -67,7 +67,7 @@
 </script>
 
 <!-- <a class="" style="background-image: url('{beatmap.background_url}')"> -->
-{#if beatmap.id != null}
+{#if beatmap.beatmapset_id != null}
     <Dialog.Root bind:open={dialogOpen}>
         <Dialog.Content class="w-150">
             <Dialog.Header>
@@ -99,7 +99,7 @@
         role="gridcell"
         tabindex=-1
     >
-        <a href={"https://osu.ppy.sh/s/" + beatmap.id}>
+        <a href={"https://osu.ppy.sh/s/" + beatmap.beatmapset_id}>
             <div
                 style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmap.cover}')"
                 class="aspect-2/1 outline px-4 flex flex-col justify-center"    

@@ -7,4 +7,4 @@ const response_codes = {
     SERVER_ERROR: 500,
 };
 
-export default response_codes
+export { response_codes }
