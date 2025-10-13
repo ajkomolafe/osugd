@@ -39,25 +39,19 @@ async function checkReminders() {
 	})
 	for (const reminder of reminders){
 		if ((reminder.last_reminder + reminder.reminder_frequency) < (Date.now() / 1000)){
-			const count = await Beatmapset.countDocuments({  
-				ogd_user_id: reminder.ogd_user_id,
-				status: "pending",
-			});
-
-			if (count == 0){
-				// No maps to remind the user of
-				continue
-			}
 
 			const beatmapsets = await Beatmapset.find({
 				ogd_user_id: reminder.ogd_user_id,
-				status: "pending",
+				$or: [{status: "pending"}, {status: "graveyard"}]
 			}).limit(3);
 
+			if (beatmapsets.length == 0){
+				// No maps to remind the user about
+				continue
+			}
+
 			// Finish message setup later
-			// let message = ""
-			let message = "ogd: You have " + count + " guest difficulty to complete: " + beatmapsets[0].creator_username + "'s " + beatmapsets[0].title + ". https://ogd.akomolafe.dev"
-			// }
+			let message = "ogd: You have " + beatmapsets.length + " guest difficulty to complete: " + beatmapsets[0].creator_username + "'s " + beatmapsets[0].title + ". https://ogd.akomolafe.dev"
 
 			let user = await client.getUserById(Number(reminder.ogd_user_id))
 			await user.sendMessage(message)
