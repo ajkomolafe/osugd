@@ -24,14 +24,14 @@ export async function load({ parent, cookies, url, depends }) {
     let session = cookies.get("session");
     if (session != null) {
         try {
-            const [graved, pending, ranked] = await Promise.all([
+            const [graveyard, pending, ranked] = await Promise.all([
                 getBeatmapsets(session, "graveyard"),
                 getBeatmapsets(session, "pending"),
                 getBeatmapsets(session, "ranked"),
             ])
-            const max_length = Math.min(Math.max(graved.length, pending.length, ranked.length), 3)
-            while (graved.length < max_length){
-                graved.push(null)
+            const max_length = Math.min(Math.max(graveyard.length, pending.length, ranked.length), 3)
+            while (graveyard.length < max_length){
+                graveyard.push(null)
             }
             while (pending.length < max_length){
                 pending.push(null)
@@ -42,7 +42,7 @@ export async function load({ parent, cookies, url, depends }) {
 
             return {
                 beatmapsets: {
-                    graved: graved,
+                    graveyard: graveyard,
                     pending: pending,
                     ranked: ranked,
                 }
@@ -60,9 +60,9 @@ export async function load({ parent, cookies, url, depends }) {
 
     return {
         beatmapsets: {
-            graved: [null, null],
-            pending: [null, null],
-            ranked: [null, null],
+            graveyard: [null],
+            pending: [null],
+            ranked: [null],
         }
     }
 }

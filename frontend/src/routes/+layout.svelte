@@ -44,7 +44,7 @@
 	}
 
 	async function addBeatmapset() {
-		const response = await fetch('/api/add_beatmapset', {
+		const response = await fetch('/api/beatmapsets', {
 			method: 'POST',
 			body: JSON.stringify({ link, difficulty }),
 			headers: {

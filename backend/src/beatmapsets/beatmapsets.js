@@ -177,4 +177,60 @@ router.post("/", async (req, res) => {
     }
 });
 
+// DELETE: Delete Beatmapset
+router.delete("/", async (req, res) => {
+    const cookie = getCookie(req, "session")
+    if (cookie == null) {
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "missing cookie"
+        })
+    }
+
+    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "cookie is an invalid format"
+        })
+    }
+    
+    const beatmapset_id = req.body.beatmapset_id
+    if (beatmapset_id == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "beatmapset_id is invalid"
+        })
+    }
+
+    try {
+        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+        const ogd_user_id = response.data.id
+        const username = response.data.username
+
+        // Not possible to have more than one of the same beatmapset for each
+        // user, due to the index in the Beatmapset schema
+        let beatmapset = await Beatmapset.findOneAndDelete({ 
+            beatmapset_id: beatmapset_id,
+            ogd_user_id: ogd_user_id,
+        })
+
+        // Didn't exist in the database before deletion
+        if (beatmapset == null){
+            return res.status(response_codes.BAD_REQUEST).json({
+                hint: "beatmap doesn't exist"
+            })
+        }
+
+        console.log("DELETE /api/beatmapsets/: " + username)
+
+        res.status(response_codes.OK).json()
+    }
+    catch (err) {
+        return res.status(400).json({ message: err.message });
+    }
+});
+
+
 export default router;

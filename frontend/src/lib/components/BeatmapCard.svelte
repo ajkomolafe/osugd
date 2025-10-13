@@ -8,21 +8,21 @@
     import { Button } from "$lib/components/ui/button/index.js"
     import * as Dialog from "$lib/components/ui/dialog/index.js"
 
-    let { beatmap } = $props();
+    let { beatmapset, deleteBeatmapsetParent } = $props();
 
     const defaults = {
         cover: cover,
     }
-    beatmap = { ...defaults, ...beatmap };
+    beatmapset = { ...defaults, ...beatmapset };
 
     // let link = $state("")
-	let difficulty = $state(beatmap.difficulty)
+	let difficulty = $state(beatmapset.difficulty)
 	let dialogOpen = $state(false)
     let isHovering = $state(false)
 
     async function editBeatmapset() {
-        let link = "https://osu.ppy.sh/s/" + beatmap.beatmapset_id
-		const response = await fetch('/api/add_beatmapset', {
+        let link = "https://osu.ppy.sh/s/" + beatmapset.beatmapset_id
+		const response = await fetch('/api/beatmapsets', {
 			method: 'POST',
 			body: JSON.stringify({ link, difficulty }),
 			headers: {
@@ -32,23 +32,55 @@
 		const result = await response.json()
 		if (result.error != null){
 			if (result.error.hint.includes("link")){
-				toast.error("Error adding beatmapset", {
-					description: "Make sure your beatmapset link is valid!",
+				toast.error("Error editing beatmapset", {
+					description: "This beatmapset may already be deleted!",
 				})
 			} else if (result.error.hint.includes("difficulty")) {
-				toast.error("Error adding beatmapset", {
+				toast.error("Error editing beatmapset", {
 					description: "Make sure your difficulty isn't empty!",
 				})
 			} else {
-				toast.error("Error adding beatmapset", {
-					description: "Error adding beatmap, try again later."
+				toast.error("Error editing beatmapset", {
+					description: "Error editing beatmap, try again later."
 				})
 			}
 			
 		} else {
 			toast.success("Sucessfully added beatmapset!")
 			dialogOpen = false;
-			beatmap.difficulty = difficulty
+			beatmapset.difficulty = difficulty
+		}
+	}
+
+    async function deleteBeatmapset() {
+        let beatmapset_id = beatmapset.beatmapset_id
+		const response = await fetch('/api/beatmapsets', {
+			method: 'DELETE',
+			body: JSON.stringify({ beatmapset_id }),
+			headers: {
+				'content-type': 'application/json'
+			}
+		})
+		const result = await response.json()
+        //fix toasting
+		if (result.error != null){
+			if (result.error.hint.includes("beatmapset_id")){
+				toast.error("Error deleting beatmapset", {
+					description: "This beatmapset may already be deleted!",
+				})
+			} else if (result.error.hint.includes("beatmap doesn't exist")) {
+				toast.error("Error deleting beatmapset", {
+					description: "This beatmapset has already been deleted!",
+				})
+			} else {
+				toast.error("Error deleting beatmapset", {
+					description: "Error deleting beatmap, try again later."
+				})
+			}
+			
+		} else {
+			toast.success("Sucessfully deleted beatmapset!")
+            deleteBeatmapsetParent(beatmapset.beatmapset_id, beatmapset.status)
 		}
 	}
     
@@ -67,11 +99,11 @@
 </script>
 
 <!-- <a class="" style="background-image: url('{beatmap.background_url}')"> -->
-{#if beatmap.beatmapset_id != null}
+{#if beatmapset != null && beatmapset.beatmapset_id != null}
     <Dialog.Root bind:open={dialogOpen}>
         <Dialog.Content class="w-150">
             <Dialog.Header>
-                <Dialog.Title>Edit {beatmap.title}</Dialog.Title>
+                <Dialog.Title>Edit {beatmapset.title}</Dialog.Title>
                 <Dialog.Description>
                     Change the guest difficulty name.
                 </Dialog.Description>
@@ -99,45 +131,76 @@
         role="gridcell"
         tabindex=-1
     >
-        <a href={"https://osu.ppy.sh/s/" + beatmap.beatmapset_id}>
+        <a href={"https://osu.ppy.sh/s/" + beatmapset.beatmapset_id}>
             <div
-                style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmap.cover}')"
+                style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmapset.cover}')"
                 class="aspect-2/1 outline px-4 flex flex-col justify-center"    
             >
                 <h3 class="text-white font-bold text-xl/5">
-                    {beatmap.title}
+                    {beatmapset.title}
                 </h3>
                 <p class="text-white text-sm">
-                    by {beatmap.artist}
+                    by {beatmapset.artist}
                 </p>
                 <p class="text-gray-300 text-xs font-bold italic">
-                    {beatmap.source}
+                    {beatmapset.source}
                 </p>
                 <br/>
                 <p class="text-white text-sm">
-                    hosted by {beatmap.creator_username}
+                    hosted by {beatmapset.creator_username}
                 </p>
                 <p class="text-white text-sm font-bold">
-                    {beatmap.difficulty}
+                    {beatmapset.difficulty}
                 </p>
             </div>
         </a>
         <div 
-            class="rounded-lg bg-black/90 dark:bg-gray-300 flex flex-col justify-center items-center space-y-12 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
+            class="rounded-lg bg-black/90 dark:bg-gray-300 flex flex-col justify-center items-center space-y-8 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
             class:translate-x-0={isHovering && !dialogOpen}
             class:translate-x-full={!isHovering || dialogOpen}
         >
-            {#if beatmap.status != "ranked"}
+            {#if beatmapset.status != "ranked"} <!-- will open a dialog that says "want to set as wip?" -->
+                <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round"
+                    class="w-4 h-4 filter brightness-0 light:invert cursor-pointer">
+                    <path d="M5 12h14"/>
+                    <path d="M12 5l7 7-7 7"/>
+                </svg>
                 <button onclick={() => { dialogOpen = true; }}>
                     <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 light:invert cursor-pointer" />
                 </button>
+            {:else}
+                <!-- Left arrow to move to WIP -->
+                <button onclick={() => { dialogOpen = true; }}>
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        stroke-width="2" 
+                        stroke-linecap="round" 
+                        stroke-linejoin="round"
+                        class="w-4 h-4 filter brightness-0 light:invert cursor-pointer">
+                        <path d="M19 12H5"/>
+                        <path d="M12 19L5 12 12 5"/>
+                    </svg>
+                    <!-- <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 light:invert cursor-pointer" /> -->
+                </button>
             {/if}
-            <img src={trash} alt="delete" class="w-6 h-6 filter brightness-0 light:invert cursor-pointer" />
+            <button onclick={deleteBeatmapset}> <!-- open a dialog that says are you sure you want to delete <> -->
+                <img src={trash} alt="delete" class="w-6 h-6 filter brightness-0 light:invert cursor-pointer" />
+            </button>
         </div>
     </div>
 {:else}
     <div
-        style="background-position: center; background-size: cover; background-image: url('{beatmap.cover}')"
+        style="background-position: center; background-size: cover; background-image: url('{beatmapset.cover}')"
         class="aspect-2/1 outline rounded-lg py-2 px-4 flex flex-col justify-center"    
     >
         <p class="text-white text-sm text-center">

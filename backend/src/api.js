@@ -35,6 +35,10 @@ if (port == null || port == "") {
 
 api.listen(port, () => console.log("API Started"));
 
+function beatmapsetLink(beatmapset_id){
+	return "https://osu.ppy.sh/s/" + beatmapset_id
+}
+
 // Every 15 mins, check if there are reminders to be sent.
 // If a reminder should be sent, get first 3 beatmap names, and send that in the message.
 async function checkReminders() {
@@ -44,18 +48,44 @@ async function checkReminders() {
 	for (const reminder of reminders){
 		if ((reminder.last_reminder + reminder.reminder_frequency) < (Date.now() / 1000)){
 
-			const beatmapsets = await Beatmapset.find({
+			const total_user_beatmapsets_promise = Beatmapset.countDocuments({
 				ogd_user_id: reminder.ogd_user_id,
 				$or: [{status: "pending"}, {status: "graveyard"}]
-			}).limit(3);
+			}).exec();
+
+			const beatmapsets_promise = Beatmapset.find({
+				ogd_user_id: reminder.ogd_user_id,
+				$or: [{status: "pending"}, {status: "graveyard"}]
+			}).limit(2).exec();
+
+			const [total_user_beatmapsets, beatmapsets] = await Promise.all([total_user_beatmapsets_promise, beatmapsets_promise])
 
 			if (beatmapsets.length == 0){
 				// No maps to remind the user about
 				continue
 			}
 
-			// Finish message setup later
-			let message = "ogd: You have " + beatmapsets.length + " guest difficulty to complete: " + beatmapsets[0].creator_username + "'s " + beatmapsets[0].title + ". https://ogd.akomolafe.dev"
+			let message
+			// sort by added time, oldest first, need to make an edit api so it doesnt modify time
+			if (total_user_beatmapsets == 1){
+				message = `[https://ogd.akomolafe.dev/ ogd]: 
+				You have ${total_user_beatmapsets} guest difficulty to complete: 
+				${beatmapsets[0].creator_username}'s [${beatmapsetLink(beatmapsets[0].beatmapset_id)} ${beatmapsets[0].title}].`
+			} 
+			else if (total_user_beatmapsets == 2){
+				message = `[https://ogd.akomolafe.dev/ ogd]: 
+				You have ${total_user_beatmapsets} guest difficulties to complete: 
+				${beatmapsets[0].creator_username}'s [${beatmapsetLink(beatmapsets[0].beatmapset_id)} ${beatmapsets[0].title}] and 
+				${beatmapsets[1].creator_username}'s [${beatmapsetLink(beatmapsets[1].beatmapset_id)} ${beatmapsets[1].title}].`
+			}
+			else if (total_user_beatmapsets >= 3){
+				message = `[https://ogd.akomolafe.dev/ ogd]: 
+				You have ${total_user_beatmapsets} guest difficulties to complete: 
+				${beatmapsets[0].creator_username}'s [${beatmapsetLink(beatmapsets[0].beatmapset_id)} ${beatmapsets[0].title}], 
+				${beatmapsets[1].creator_username}'s [${beatmapsetLink(beatmapsets[1].beatmapset_id)} ${beatmapsets[1].title}], 
+				and ${total_user_beatmapsets - 2} more.`
+			}
+			message = message.replace(/[\t\n\r]/g, ""); // Strip tabs/newlines
 
 			let user = await client.getUserById(Number(reminder.ogd_user_id))
 			await user.sendMessage(message)
