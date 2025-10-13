@@ -5,6 +5,7 @@ const beatmapsetSchema = new mongoose.Schema({
     beatmapset_id: { //pk
         type: Number,
         required: true,
+        unique: true,
     },
     ogd_user_id: { //pk
         type: Number,
@@ -55,5 +56,10 @@ const beatmapsetSchema = new mongoose.Schema({
         required: true,
     }
 })
+
+beatmapsetSchema.index(
+  { beatmapset_id: 1, ogd_user_id: 1 }, 
+  { unique: true }
+);
 
 export default mongoose.model("beatmapset", beatmapsetSchema, "beatmapsets")

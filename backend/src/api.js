@@ -1,11 +1,13 @@
 import dotenv from "dotenv"
 import express from "express"
 import mongoose from "mongoose"
-import userRouter from "./users/users.js"
 import authRouter from "./auth/auth.js"
+import userRouter from "./users/users.js"
+import beatmapsetRouter from "./beatmapsets/beatmapsets.js"
+import remindersRouter from "./reminders/reminders.js"
 import Banchojs from "bancho.js"
-import Reminder from './users/reminder.js'
-import Beatmapset from './users/beatmapset.js'
+import Reminder from './reminders/reminder.js'
+import Beatmapset from './beatmapsets/beatmapset.js'
 
 dotenv.config()
 const api = express();
@@ -23,6 +25,8 @@ const client = new Banchojs.BanchoClient({ username: process.env.IRC_USERNAME, p
 api.use(express.json());
 api.use("/api/auth", authRouter) //requests on host/auth go to authRouter
 api.use("/api/users", userRouter) //requests on host/users go to userRouter
+api.use("/api/beatmapsets", beatmapsetRouter) //requests on host/auth go to authRouter
+api.use("/api/reminders", remindersRouter) //requests on host/users go to userRouter
 
 let port = process.env.PORT;
 if (port == null || port == "") {
@@ -31,7 +35,7 @@ if (port == null || port == "") {
 
 api.listen(port, () => console.log("API Started"));
 
-// Every hour, check if there are reminders to be sent.
+// Every 15 mins, check if there are reminders to be sent.
 // If a reminder should be sent, get first 3 beatmap names, and send that in the message.
 async function checkReminders() {
 	const reminders = await Reminder.find( { } ).catch((err) => {
@@ -59,7 +63,7 @@ async function checkReminders() {
 			await Reminder.findOneAndUpdate({
 				ogd_user_id: reminder.ogd_user_id,
 			}, {
-				last_reminder: Date.now() / 1000,
+				last_reminder: reminder.last_reminder + reminder.reminder_frequency,
 			}).orFail()
 			
 			console.log("Reminded user " + user.ircUsername + " at " + (new Date()).toLocaleString('en-US', {
@@ -74,7 +78,7 @@ async function checkReminders() {
 		}
 	}
 
-	setTimeout(checkReminders, 5 * 60 * 1000)
+	setTimeout(checkReminders, 15 * 60 * 1000)
 }
 
 function waitForDatabase() {

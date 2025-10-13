@@ -2,7 +2,7 @@ import axios from 'axios';
 import { BACKEND_ADDRESS } from '$env/static/private';
 
 async function getBeatmapsets(session, type){
-    let response = await axios.get(BACKEND_ADDRESS + "/api/users/get_beatmapsets", {
+    let response = await axios.get(BACKEND_ADDRESS + "/api/beatmapsets", {
         headers: {
             'Cookie': "session=" + session
         },
@@ -25,7 +25,7 @@ export async function load({ parent, cookies, url, depends }) {
     if (session != null) {
         try {
             const [graved, pending, ranked] = await Promise.all([
-                getBeatmapsets(session, "graved"),
+                getBeatmapsets(session, "graveyard"),
                 getBeatmapsets(session, "pending"),
                 getBeatmapsets(session, "ranked"),
             ])

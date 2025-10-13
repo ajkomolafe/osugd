@@ -4,9 +4,10 @@ import { json } from '@sveltejs/kit';
 
 export async function POST({ request, cookies }) {
     const { link, difficulty } = await request.json()
+    console.log(link)
 	try { 
         const session = cookies.get('session')
-        let response = await axios.post(BACKEND_ADDRESS + "/api/users/add_beatmapset", {
+        let response = await axios.post(BACKEND_ADDRESS + "/api/beatmapsets", {
             link: link,
             difficulty: difficulty,
         }, {
@@ -14,7 +15,6 @@ export async function POST({ request, cookies }) {
                 'Cookie': "session=" + session
             }
         })
-        console.log(response.data)
         return json({
             error: null,
         })

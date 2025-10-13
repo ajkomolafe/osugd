@@ -21,7 +21,7 @@
     let isHovering = $state(false)
 
     async function editBeatmapset() {
-        let link = "https://osu.ppy.sh/s/" + beatmap.id
+        let link = "https://osu.ppy.sh/s/" + beatmap.beatmapset_id
 		const response = await fetch('/api/add_beatmapset', {
 			method: 'POST',
 			body: JSON.stringify({ link, difficulty }),
@@ -48,7 +48,7 @@
 		} else {
 			toast.success("Sucessfully added beatmapset!")
 			dialogOpen = false;
-			invalidateAll()
+			beatmap.difficulty = difficulty
 		}
 	}
     

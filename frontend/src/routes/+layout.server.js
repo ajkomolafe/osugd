@@ -21,7 +21,7 @@ async function getCookie(cookies, code, redirect_uri){
 }
 
 async function getUser(session){
-    let response = await axios.get(BACKEND_ADDRESS + "/api/users/me", {
+    let response = await axios.get(BACKEND_ADDRESS + "/api/users", {
         headers: {
             'Cookie': "session=" + session
         }
@@ -39,7 +39,7 @@ async function getUser(session){
 }
 
 async function refreshSession(cookies, session){
-    let response = await axios.get(BACKEND_ADDRESS + "/api/auth/refresh", {
+    let response = await axios.put(BACKEND_ADDRESS + "/api/auth", {
         headers: {
             'Cookie': "session=" + session
         }

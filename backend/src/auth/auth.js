@@ -14,6 +14,7 @@ const router = express.Router();
 //     refreshToken
 // }
 
+// GET: Get session cookie
 // Generates session JWT using osu.ppy.sh's OAuth2
 // Creates / Upserts an account in db instance
 router.get("/", async (req, res) => {
@@ -74,9 +75,10 @@ router.get("/", async (req, res) => {
     }
 })
 
+// PUT: Update session cookie
 // Recreates session JWT using osu.ppy.sh's OAuth2 by refreshing access token
 // Creates / Upserts an account in db instance
-router.get("/refresh", async (req, res) => {
+router.put("/", async (req, res) => {
     let cookie = getCookie(req, "session")
     if (cookie == null) {
         return res.status(response_codes.BAD_REQUEST).json({
