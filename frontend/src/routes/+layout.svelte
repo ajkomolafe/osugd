@@ -2,6 +2,7 @@
 	import '../app.css'
 	import axios from 'axios';
 	import favicon from '$lib/assets/white.svg'
+	import github_mark from "$lib/assets/github-mark.svg"
 
   	import { Button, buttonVariants } from "$lib/components/ui/button/index.js"
 	import { Input } from "$lib/components/ui/input/index.js"
@@ -19,9 +20,7 @@
 
 	import Calendar from "$lib/components/ui/calendar/calendar.svelte";
 	import * as Popover from "$lib/components/ui/popover/index.js";
-	// import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
 	import { today, getLocalTimeZone } from "@internationalized/date";
-	// import type { CalendarDate } from "@internationalized/date";
 
   	const client_id = import.meta.env.VITE_CLIENT_ID
 	const backend_address = import.meta.env.VITE_BACKEND_ADDRESS
@@ -237,6 +236,15 @@
 		<div class="flex items-center gap-4">
 			 <a href="/">
 				<h1 class="text-3xl text-[ogd-primary] font-bold hover:text-gray-400 transition-colors">ogd</h1>
+			</a>
+			<a href="https://github.com/ajkomolafe/osugd">
+				<Button class={cn(buttonVariants({ variant: "outline" }), "cursor-pointer h-14 text-black dark:text-white items-center")}>
+				<img
+					src={github_mark}
+					alt="github"
+					class="h-10 w-10 dark:invert"
+				/>
+				</Button>
 			</a>
 		</div>
 		<div class="flex items-center gap-4">

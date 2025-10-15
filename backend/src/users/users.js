@@ -31,7 +31,6 @@ router.get("/", async (req, res) => {
         }   
     }
     catch {
-        console.log("GET /api/users/me\n\tErr: cookie isn't an actual cookie (jwt malformed)")
         return res.status(response_codes.BAD_REQUEST).json({
             hint: "cookie is an invalid format"
         })
@@ -55,7 +54,7 @@ router.get("/", async (req, res) => {
         });
     }
     catch (err) {
-        console.log("Error: " + err.message)
+         console.log("GET /api/users/: Error: " + err.message)
         if (err.status != null){
             return res.status(response_codes.BAD_REQUEST).json({
                 message: err.message,

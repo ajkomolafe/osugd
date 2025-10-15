@@ -98,30 +98,28 @@
     // creator_username
 </script>
 
-<!-- <a class="" style="background-image: url('{beatmap.background_url}')"> -->
-{#if beatmapset != null && beatmapset.beatmapset_id != null}
-    <Dialog.Root bind:open={dialogOpen}>
-        <Dialog.Content class="w-150">
-            <Dialog.Header>
-                <Dialog.Title>Edit {beatmapset.title}</Dialog.Title>
-                <Dialog.Description>
-                    Change the guest difficulty name.
-                </Dialog.Description>
-            </Dialog.Header>
-            <div class="grid gap-4 py-4">
-                <div class="grid grid-cols-4 items-center gap-4">
-                    <Label for="difficulty" class="text-right">Difficulty</Label>
-                    <Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={"Expert"} />
-                </div>
+<!-- on click of the dialogue, the overflow thing is popping out still so get that checked -->
+<Dialog.Root bind:open={dialogOpen}>
+    <Dialog.Content class="w-150">
+        <Dialog.Header>
+            <Dialog.Title>Edit {beatmapset.title}</Dialog.Title>
+            <Dialog.Description>
+                Change the guest difficulty name.
+            </Dialog.Description>
+        </Dialog.Header>
+        <div class="grid gap-4 py-4">
+            <div class="grid grid-cols-4 items-center gap-4">
+                <Label for="difficulty" class="text-right">Difficulty</Label>
+                <Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={"Expert"} />
             </div>
-            <Dialog.Footer>
-                <Button type="submit" class="cursor-pointer" onclick={editBeatmapset}>Submit</Button>
-            </Dialog.Footer>
-        </Dialog.Content>
-    </Dialog.Root>
+        </div>
+        <Dialog.Footer>
+            <Button type="submit" class="cursor-pointer" onclick={editBeatmapset}>Submit</Button>
+        </Dialog.Footer>
+    </Dialog.Content>
+</Dialog.Root>
 
-    <!-- on click of the dialogue, the overflow thing is popping out still so get that checked -->
-
+{#if beatmapset != null && beatmapset.beatmapset_id != null}
     <div 
         class="relative group overflow-hidden rounded-lg"
         onmouseenter={() => { isHovering = true }}
@@ -133,23 +131,23 @@
     >
         <a href={"https://osu.ppy.sh/s/" + beatmapset.beatmapset_id}>
             <div
-                style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmapset.cover}')"
-                class="aspect-2/1 outline px-4 flex flex-col justify-center"    
+                class="outline px-4 py-2 flex flex-col justify-center @container"
+                style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmapset.cover}'); aspect-ratio: 2 / 1;"
             >
-                <h3 class="text-white font-bold text-xl/5">
+                <h3 class="text-white font-bold text-[6cqw] truncate">
                     {beatmapset.title}
                 </h3>
-                <p class="text-white text-sm">
+                <p class="text-white text-[4cqw] truncate">
                     by {beatmapset.artist}
                 </p>
-                <p class="text-gray-300 text-xs font-bold italic">
+                <p class="text-gray-300 font-bold text-[4cqw] truncate">
                     {beatmapset.source}
                 </p>
                 <br/>
-                <p class="text-white text-sm">
+                <p class="text-white text-[4cqw] truncate">
                     hosted by {beatmapset.creator_username}
                 </p>
-                <p class="text-white text-sm font-bold">
+                <p class="text-white text-[4cqw] font-bold truncate">
                     {beatmapset.difficulty}
                 </p>
             </div>
@@ -200,10 +198,10 @@
     </div>
 {:else}
     <div
-        style="background-position: center; background-size: cover; background-image: url('{beatmapset.cover}')"
-        class="aspect-2/1 outline rounded-lg py-2 px-4 flex flex-col justify-center"    
+        style="background-position: center; background-size: cover; background-image: url('{beatmapset.cover}'); aspect-ratio: 2 / 1;"
+        class="outline rounded-lg py-2 px-4 flex flex-col justify-center @container"    
     >
-        <p class="text-white text-sm text-center">
+        <p class="text-white text-center text-[5cqw] truncate">
             Add more beatmapsets!
         </p>
     </div>

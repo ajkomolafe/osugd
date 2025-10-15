@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
                 code: code,
                 grant_type: "authorization_code",
                 redirect_uri: redirect_uri,
-                })
+            })
             const expiresIn = response.data.expires_in
             const accessToken = response.data.access_token
             const refreshToken = response.data.refresh_token
@@ -59,7 +59,7 @@ router.get("/", async (req, res) => {
         }
 
         catch (err) {
-            console.log("Error: " + err.message)
+            console.log("GET /api/auth/: Error: " + err.message)
             console.log(err.response.data)
             if (err.status != null){
                 return res.status(response_codes.BAD_REQUEST).json({
@@ -126,7 +126,7 @@ router.put("/", async (req, res) => {
         });
     }
     catch (err) {
-        console.log("Error: " + err.message)
+        console.log("PUT /api/auth/: Error: " + err.message)
         if (err.status != null){
             return res.status(response_codes.BAD_REQUEST).json({
                 message: err.message,

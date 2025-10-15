@@ -74,7 +74,7 @@ router.get("/", async (req, res) => {
     }
 
     catch (err) {
-        console.log("Error: " + err.message)
+        console.log("GET /api/beatmapsets/ Error: " + err.message)
         //api request failure
         if (err.status != null){
             return res.status(response_codes.BAD_REQUEST).json({
@@ -164,7 +164,7 @@ router.post("/", async (req, res) => {
                 upsert: true,
             }
         ).catch((err) => {
-            console.log(err)
+            console.log("POST /api/beatmapsets/: Error adding to database")
             return res.status(400).json({ hint: "error adding to database" });
         })
 
@@ -173,6 +173,7 @@ router.post("/", async (req, res) => {
         res.status(response_codes.OK).json()
     }
     catch (err) {
+        console.log("POST /api/beatmapsets/: Error: " + err.message)
         return res.status(400).json({ message: err.message });
     }
 });
@@ -228,6 +229,7 @@ router.delete("/", async (req, res) => {
         res.status(response_codes.OK).json()
     }
     catch (err) {
+        console.log("DELETE /api/beatmapsets/: Error: " + err.message)
         return res.status(400).json({ message: err.message });
     }
 });

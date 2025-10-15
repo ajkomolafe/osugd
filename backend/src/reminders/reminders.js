@@ -63,7 +63,7 @@ router.post("/", async (req, res) => {
         username = response.data.username
     }
     catch (err) {
-        console.log("Error: " + err.message)
+        console.log("POST /api/reminders/: Error: " + err.message)
         if (err.status != null){
             return res.status(response_codes.BAD_REQUEST).json({
                 message: err.message,
@@ -88,7 +88,7 @@ router.post("/", async (req, res) => {
             upsert: true,
         }
     ).catch((err) => {
-        console.log(err)
+        console.log("POST /api/reminders/: Error adding to database ")
         return res.status(400).json({ hint: "error adding to database" });
     })
 

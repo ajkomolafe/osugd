@@ -82,6 +82,7 @@
     <p>You are not logged in. Please log in to see more.</p>
 {/if}
 
+
 <style>
     .no-scrollbar::-webkit-scrollbar {
         display: none;
