@@ -68,18 +68,18 @@ async function checkReminders() {
 			let message
 			// sort by added time, oldest first, need to make an edit api so it doesnt modify time
 			if (total_user_beatmapsets == 1){
-				message = `[https://ogd.akomolafe.dev/ ogd]: 
+				message = `[https://ogd.isle.to/ ogd]: 
 				You have ${total_user_beatmapsets} guest difficulty to complete: 
 				${beatmapsets[0].creator_username}'s [${beatmapsetLink(beatmapsets[0].beatmapset_id)} ${beatmapsets[0].title}].`
 			} 
 			else if (total_user_beatmapsets == 2){
-				message = `[https://ogd.akomolafe.dev/ ogd]: 
+				message = `[https://ogd.isle.to/ ogd]: 
 				You have ${total_user_beatmapsets} guest difficulties to complete: 
 				${beatmapsets[0].creator_username}'s [${beatmapsetLink(beatmapsets[0].beatmapset_id)} ${beatmapsets[0].title}] and 
 				${beatmapsets[1].creator_username}'s [${beatmapsetLink(beatmapsets[1].beatmapset_id)} ${beatmapsets[1].title}].`
 			}
 			else if (total_user_beatmapsets >= 3){
-				message = `[https://ogd.akomolafe.dev/ ogd]: 
+				message = `[https://ogd.isle.to/ ogd]: 
 				You have ${total_user_beatmapsets} guest difficulties to complete: 
 				${beatmapsets[0].creator_username}'s [${beatmapsetLink(beatmapsets[0].beatmapset_id)} ${beatmapsets[0].title}], 
 				${beatmapsets[1].creator_username}'s [${beatmapsetLink(beatmapsets[1].beatmapset_id)} ${beatmapsets[1].title}], 
