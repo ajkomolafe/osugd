@@ -153,11 +153,12 @@
             </div>
         </a>
         <div 
-            class="rounded-lg bg-black/90 dark:bg-gray-300 flex flex-col justify-center items-center space-y-8 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
+            class="rounded-lg bg-gray-300 flex flex-col justify-center items-center space-y-6 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
             class:translate-x-0={isHovering && !dialogOpen}
             class:translate-x-full={!isHovering || dialogOpen}
         >
-            {#if beatmapset.status != "ranked"} <!-- will open a dialog that says "want to set as wip?" -->
+            {#if beatmapset.wip_status == true}
+                <!-- Right arrow to move to Completed -->
                 <svg 
                     xmlns="http://www.w3.org/2000/svg" 
                     viewBox="0 0 24 24" 
