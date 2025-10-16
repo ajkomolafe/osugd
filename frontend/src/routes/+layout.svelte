@@ -42,10 +42,10 @@
 		window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
 	}
 
-	async function addBeatmapset() {
+	async function addBeatmapset(wip_status) {
 		const response = await fetch('/api/beatmapsets', {
 			method: 'POST',
-			body: JSON.stringify({ link, difficulty }),
+			body: JSON.stringify({ link, difficulty, wip_status }),
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -156,7 +156,7 @@
 			</div>
 		</div>
 		<Dialog.Footer>
-			<Button type="submit" class="cursor-pointer" onclick={addBeatmapset}>Submit</Button>
+			<Button type="submit" class="cursor-pointer" onclick={ () => {addBeatmapset(true)} }>Submit</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
@@ -242,7 +242,7 @@
 				<img
 					src={github_mark}
 					alt="github"
-					class="h-10 w-10 dark:invert"
+					class="h-6 w-6 dark:invert"
 				/>
 				</Button>
 			</a>

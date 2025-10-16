@@ -32,10 +32,21 @@ function parseLink(link){
 
 // GET: Get Beatmapsets (Paginated)
 router.get("/", async (req, res) => {
-    const type = req.query.type
-    if (type != "graveyard" && type != "pending" && type != "ranked"){
+    let wip_status = req.query.wip_status
+    if (wip_status == null){
         return res.status(response_codes.BAD_REQUEST).json({
-            hint: "invalid beatmap type"
+            hint: "wip_status is empty"
+        })
+    }
+    if (wip_status === "true"){
+        wip_status = true
+    }
+    if (wip_status === "false"){
+        wip_status = false
+    }
+    if (!(wip_status === true || wip_status === false)){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "wip_status must be a boolean value"
         })
     }
 
@@ -63,7 +74,7 @@ router.get("/", async (req, res) => {
 
         const beatmapsets = await Beatmapset.find({
             ogd_user_id: ogd_user_id,
-            status: type,
+            wip_status: wip_status,
         }).limit(3);
 
         console.log("GET /api/beatmapsets/: " + response.data.username)
@@ -117,6 +128,24 @@ router.post("/", async (req, res) => {
         })
     }
 
+    let wip_status = req.body.wip_status
+    if (wip_status == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "wip_status is empty"
+        })
+    }
+    if (wip_status === "true"){
+        wip_status = true
+    }
+    if (wip_status === "false"){
+        wip_status = false
+    }
+    if (!(wip_status === true || wip_status === false)){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "wip_status must be a boolean value"
+        })
+    }
+
     try {
         let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
             headers: {
@@ -132,16 +161,6 @@ router.post("/", async (req, res) => {
             },
         })
 
-        let consistent_status;
-        if (response.data.status == "graveyard"){
-            consistent_status = "graveyard"
-        } else if (response.data.status == "wip" || response.data.status == "pending"){
-            consistent_status = "pending"
-        } else { //ranked, approved, qualified, loved
-            consistent_status = "ranked"
-        }
-
-        // console.log(response.data)
         await Beatmapset.updateOne(
             { 
                 beatmapset_id: response.data.id,
@@ -153,7 +172,8 @@ router.post("/", async (req, res) => {
                 artist_unicode: response.data.artist_unicode,
                 cover: response.data.covers['card@2x'],
                 source: response.data.source,
-                status: consistent_status,
+                status: response.data.status,
+                wip_status: wip_status,
                 title: response.data.title,
                 title_unicode: response.data.title_unicode,
                 creator_id: response.data.user_id,

@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { BACKEND_ADDRESS } from '$env/static/private';
 
-async function getBeatmapsets(session, type){
+async function getBeatmapsets(session, wip_status){
     let response = await axios.get(BACKEND_ADDRESS + "/api/beatmapsets", {
         headers: {
             'Cookie': "session=" + session
         },
         params: {
-            type: type,
+            wip_status: wip_status,
         },
     })
 
@@ -24,27 +24,22 @@ export async function load({ parent, cookies, url, depends }) {
     let session = cookies.get("session");
     if (session != null) {
         try {
-            const [graveyard, pending, ranked] = await Promise.all([
-                getBeatmapsets(session, "graveyard"),
-                getBeatmapsets(session, "pending"),
-                getBeatmapsets(session, "ranked"),
+            const [wip, completed] = await Promise.all([
+                getBeatmapsets(session, true),
+                getBeatmapsets(session, "false"),
             ])
-            const max_length = Math.min(Math.max(graveyard.length, pending.length, ranked.length), 3)
-            while (graveyard.length < max_length){
-                graveyard.push(null)
+            const max_length = Math.min(Math.max(wip.length, completed.length), 10)
+            while (wip.length < max_length || wip.length % 2 == 1){
+                wip.push(null)
             }
-            while (pending.length < max_length){
-                pending.push(null)
-            }
-            while (ranked.length < max_length){
-                ranked.push(null)
+            while (completed.length < max_length || completed.length % 2 == 1){
+                completed.push(null)
             }
 
             return {
                 beatmapsets: {
-                    graveyard: graveyard,
-                    pending: pending,
-                    ranked: ranked,
+                    wip: wip,
+                    completed: completed,
                 }
             }
         }
@@ -60,9 +55,8 @@ export async function load({ parent, cookies, url, depends }) {
 
     return {
         beatmapsets: {
-            graveyard: [null],
-            pending: [null],
-            ranked: [null],
+            wip: [null],
+            completed: [null],
         }
     }
 }

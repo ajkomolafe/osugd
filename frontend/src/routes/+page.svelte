@@ -4,41 +4,30 @@
 
     let { data, children } = $props();
 
-    function deleteBeatmapsetParent(beatmapset_id, status) {
+    function deleteBeatmapsetParent(beatmapset_id, wip_status) {
         let newBeatmapsets = { ...data.beatmapsets };
         let default_beatmapset = {
             cover: cover,
         }
 
-        if (status == "graveyard"){
-            newBeatmapsets.graveyard = newBeatmapsets.graveyard.filter((beatmapset) => {
+        if (wip_status == true){ // wip Array
+            newBeatmapsets.wip = newBeatmapsets.wip.filter((beatmapset) => {
                 beatmapset != null && beatmapset.beatmapset_id !== beatmapset_id
             });
 
-            const max_length = Math.min(Math.max(newBeatmapsets.graveyard.length, newBeatmapsets.pending.length, newBeatmapsets.ranked.length), 3)
-            while (newBeatmapsets.graveyard.length < max_length){
-                newBeatmapsets.graveyard.push(default_beatmapset)
+            const max_length = Math.min(Math.max(newBeatmapsets.wip.length, newBeatmapsets.completed.length), 3)
+            while (newBeatmapsets.wip.length < max_length){
+                newBeatmapsets.wip.push(default_beatmapset)
             }
         } 
-        else if (status == "pending"){
-            newBeatmapsets.pending = newBeatmapsets.pending.filter((beatmapset) => {
+        else if (wip_status == false){ // completed Array
+            newBeatmapsets.completed = newBeatmapsets.completed.filter((beatmapset) => {
                 beatmapset != null && beatmapset.beatmapset_id !== beatmapset_id
             });
 
-            const max_length = Math.min(Math.max(newBeatmapsets.graveyard.length, newBeatmapsets.pending.length, newBeatmapsets.ranked.length), 3)
-            while (newBeatmapsets.pending.length < max_length){
-                newBeatmapsets.pending.push(default_beatmapset)
-            }
-            console.log(newBeatmapsets.pending)
-        } 
-        else if (status == "ranked"){
-            newBeatmapsets.ranked = newBeatmapsets.ranked.filter((beatmapset) => {
-                beatmapset != null && beatmapset.beatmapset_id !== beatmapset_id
-            });
-
-            const max_length = Math.min(Math.max(newBeatmapsets.graveyard.length, newBeatmapsets.pending.length, newBeatmapsets.ranked.length), 3)
-            while (newBeatmapsets.ranked.length < max_length){
-                newBeatmapsets.ranked.push(default_beatmapset)
+            const max_length = Math.min(Math.max(newBeatmapsets.wip.length, newBeatmapsets.completed.length), 3)
+            while (newBeatmapsets.completed.length < max_length){
+                newBeatmapsets.completed.push(default_beatmapset)
             }
         }
 
@@ -51,29 +40,21 @@
 </script>
 
 {#if data.user}
-    <div class="flex justify-between items-center">
+    <div class="flex justify-center items-center space-x-6">
         <!-- outline rounded-lg -->
-        <div class="px-5 justify-between items-center w-5/16 outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
-            <h1 class="text-xl font-bold p-5 text-center">Graved</h1>
-            <div class="pb-5 space-y-2 flex flex-col">
-                {#each data.beatmapsets.graveyard as bm}
+        <div class="px-5 justify-between items-center w-full outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
+            <h1 class="text-xl font-bold p-5 text-center">Work In Progress</h1>
+            <div class="pb-5 gap-2 grid grid-cols-2">
+                {#each data.beatmapsets.wip as bm}
                     <BeatmapCard beatmapset={bm}/>
                 {/each}
             </div>
         </div>
-        <div class="px-5 justify-between items-center w-5/16 outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
-            <h1 class="text-xl font-bold p-5 text-center">Pending</h1>
-            <div class="pb-5 space-y-2 flex flex-col">
-                {#each data.beatmapsets.pending as bm}
+        <div class="px-5 justify-between items-center w-full outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
+            <h1 class="text-xl font-bold p-5 text-center">Completed</h1>
+            <div class="pb-5 gap-2 grid grid-cols-2">
+                {#each data.beatmapsets.completed as bm}
                     <BeatmapCard beatmapset={bm} deleteBeatmapsetParent={deleteBeatmapsetParent}/>
-                {/each}
-            </div>
-        </div>
-        <div class="px-5 justify-between items-center w-5/16 outline rounded-lg max-h-135 overflow-y-auto no-scrollbar"> 
-            <h1 class="text-xl font-bold p-5 text-center">Ranked</h1>
-            <div class="pb-5 space-y-2 flex flex-col">
-                {#each data.beatmapsets.ranked as bm}
-                    <BeatmapCard beatmapset={bm} />
                 {/each}
             </div>
         </div>

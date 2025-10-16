@@ -80,7 +80,7 @@
 			
 		} else {
 			toast.success("Sucessfully deleted beatmapset!")
-            deleteBeatmapsetParent(beatmapset.beatmapset_id, beatmapset.status)
+            deleteBeatmapsetParent(beatmapset.beatmapset_id, beatmapset.wip_status)
 		}
 	}
     
@@ -121,7 +121,7 @@
 
 {#if beatmapset != null && beatmapset.beatmapset_id != null}
     <div 
-        class="relative group overflow-hidden rounded-lg"
+        class="relative group overflow-hidden rounded-lg outline"
         onmouseenter={() => { isHovering = true }}
         onmouseleave={() => { isHovering = false }}
         onfocusin={() => { isHovering = true }}
@@ -131,7 +131,7 @@
     >
         <a href={"https://osu.ppy.sh/s/" + beatmapset.beatmapset_id}>
             <div
-                class="outline px-4 py-2 flex flex-col justify-center @container"
+                class="px-4 py-2 flex flex-col justify-center @container"
                 style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmapset.cover}'); aspect-ratio: 2 / 1;"
             >
                 <h3 class="text-white font-bold text-[6cqw] truncate">
@@ -199,7 +199,7 @@
 {:else}
     <div
         style="background-position: center; background-size: cover; background-image: url('{beatmapset.cover}'); aspect-ratio: 2 / 1;"
-        class="outline rounded-lg py-2 px-4 flex flex-col justify-center @container"    
+        class="rounded-lg py-2 px-4 flex flex-col justify-center @container"    
     >
         <p class="text-white text-center text-[5cqw] truncate">
             Add more beatmapsets!

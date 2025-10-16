@@ -39,6 +39,10 @@ const beatmapsetSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    wip_status: {
+        type: Boolean,
+        required: true,
+    },
     title: {
         type: String,
         required: true,
