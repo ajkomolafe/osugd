@@ -231,7 +231,7 @@
 </Dialog.Root>
 
 <!-- Main Objects -->
-<div class="px-40 pt-5">
+<div class="center w-320 mx-auto pt-5">
 	<header class="flex justify-between items-center mb-8 outline p-4 rounded-lg">
 		<div class="flex items-center gap-4">
 			 <a href="/">
