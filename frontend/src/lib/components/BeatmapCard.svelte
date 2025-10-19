@@ -8,21 +8,23 @@
     import { Button } from "$lib/components/ui/button/index.js"
     import { Switch } from "$lib/components/ui/switch/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js"
+    import { browser } from '$app/environment';
 
-    let { beatmapset, deleteBeatmapsetParent, parentInvalidateAll } = $props();
+    let { beatmapset, completedParent, deleteBeatmapsetParent, parentInvalidateAll } = $props();
 
     const defaults = {
         cover: cover,
+        completed: completedParent,
     }
-    beatmapset = { ...defaults, ...beatmapset };
+    let safe_beatmapset = $derived({ ...defaults, ...beatmapset });
 
-	let difficulty = $state(beatmapset.difficulty)
+	let difficulty = $state(safe_beatmapset.difficulty)
 	let editBeatmapDialogOpen = $state(false)
     let isHovering = $state(false)
-    let completed = $state(beatmapset.completed)
+    let completed = $state(safe_beatmapset.completed)
 
     async function editBeatmapset() {
-        let link = "https://osu.ppy.sh/s/" + beatmapset.beatmapset_id
+        let link = "https://osu.ppy.sh/s/" + safe_beatmapset.beatmapset_id
 		const response = await fetch('/api/beatmapsets', {
 			method: 'PATCH',
 			body: JSON.stringify({ link, difficulty, completed }),
@@ -47,18 +49,18 @@
 			}
 			
 		} else {
-			toast.success("Sucessfully added beatmapset!")
 			editBeatmapDialogOpen = false;
-			beatmapset.difficulty = difficulty
-		}
+            toast.success("Sucessfully added beatmapset!")
 
-        if (completed != beatmapset.completed){
-            parentInvalidateAll()
-        }
+            beatmapset.difficulty = difficulty
+            if (completed != safe_beatmapset.completed){
+                parentInvalidateAll()
+            }
+		}
 	}
 
     async function deleteBeatmapset() {
-        let beatmapset_id = beatmapset.beatmapset_id
+        let beatmapset_id = safe_beatmapset.beatmapset_id
 		const response = await fetch('/api/beatmapsets', {
 			method: 'DELETE',
 			body: JSON.stringify({ beatmapset_id }),
@@ -85,7 +87,7 @@
 			
 		} else {
 			toast.success("Sucessfully deleted beatmapset!")
-            deleteBeatmapsetParent(beatmapset.beatmapset_id, beatmapset.completed)
+            deleteBeatmapsetParent(safe_beatmapset.beatmapset_id, safe_beatmapset.completed)
 		}
 	}
     
@@ -108,7 +110,7 @@
 <Dialog.Root bind:open={editBeatmapDialogOpen}>
     <Dialog.Content class="w-150">
         <Dialog.Header>
-            <Dialog.Title>Edit {beatmapset.title}</Dialog.Title>
+            <Dialog.Title>Edit {safe_beatmapset.title}</Dialog.Title>
             <Dialog.Description>
                 Change the guest difficulty name or WIP status.
             </Dialog.Description>
@@ -129,7 +131,7 @@
     </Dialog.Content>
 </Dialog.Root>
 
-{#if beatmapset != null && beatmapset.beatmapset_id != null}
+{#if safe_beatmapset != null && safe_beatmapset.beatmapset_id != null}
     <div 
         class="relative group overflow-hidden rounded-lg outline"
         onmouseenter={() => { isHovering = true }}
@@ -139,26 +141,26 @@
         role="gridcell"
         tabindex=-1
     >
-        <a href={"https://osu.ppy.sh/s/" + beatmapset.beatmapset_id}>
+        <a href={"https://osu.ppy.sh/s/" + safe_beatmapset.beatmapset_id}>
             <div
                 class="px-4 py-2 flex flex-col justify-center @container"
-                style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{beatmapset.cover}'); aspect-ratio: 2 / 1;"
+                style="background-position: center; background-size: cover; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{safe_beatmapset.cover}'); aspect-ratio: 2 / 1;"
             >
                 <h3 class="text-white font-bold text-[6cqw] truncate">
-                    {beatmapset.title}
+                    {safe_beatmapset.title}
                 </h3>
                 <p class="text-white text-[4cqw] truncate">
-                    by {beatmapset.artist}
+                    by {safe_beatmapset.artist}
                 </p>
                 <p class="text-gray-300 font-bold text-[4cqw] truncate">
-                    {beatmapset.source}
+                    {safe_beatmapset.source}
                 </p>
                 <br/>
                 <p class="text-white text-[4cqw] truncate">
-                    hosted by {beatmapset.creator_username}
+                    hosted by {safe_beatmapset.creator_username}
                 </p>
                 <p class="text-white text-[4cqw] font-bold truncate">
-                    {beatmapset.difficulty}
+                    {safe_beatmapset.difficulty}
                 </p>
             </div>
         </a>
@@ -167,7 +169,7 @@
             class:translate-x-0={isHovering && !editBeatmapDialogOpen}
             class:translate-x-full={!isHovering || editBeatmapDialogOpen}
         >
-            {#if beatmapset.completed == false}
+            {#if safe_beatmapset.completed == false}
                 <button onclick={() => { editBeatmapDialogOpen = true; }}>
                     <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 light:invert cursor-pointer" />
                 </button>
@@ -179,7 +181,7 @@
     </div>
 {:else}
     <div
-        style="background-position: center; background-size: cover; background-image: url('{beatmapset.cover}'); aspect-ratio: 2 / 1;"
+        style="background-position: center; background-size: cover; background-image: url('{safe_beatmapset.cover}'); aspect-ratio: 2 / 1;"
         class="rounded-lg py-2 px-4 flex flex-col justify-center @container"    
     >
         <p class="text-white text-center text-[5cqw] truncate">

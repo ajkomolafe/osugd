@@ -8,30 +8,26 @@
 
     function deleteBeatmapsetParent(beatmapset_id, completed) {
         let newBeatmapsets = { ...data.beatmapsets };
-        let default_beatmapset = {
-            cover: cover,
-        }
-        console.log(beatmapset_id, completed)
+        // let default_beatmapset = {
+        //     cover: cover,
+        // }
 
         if (completed == false){ // wip Array
             newBeatmapsets.wip = newBeatmapsets.wip.filter((beatmapset) => {
                 return beatmapset != null && beatmapset != default_beatmapset && beatmapset.beatmapset_id !== beatmapset_id
             });
-            console.log(newBeatmapsets.wip)
 
-            if ((newBeatmapsets.wip.length % 2) == 1){
-                newBeatmapsets.wip.push(default_beatmapset)
+            while (newBeatmapsets.wip.length < 2 || (newBeatmapsets.wip.length % 2) == 1){
+                newBeatmapsets.wip.push(null)
             }
-            console.log(data.beatmapsets.wip)
-            console.log(newBeatmapsets.wip)
         } 
         else if (completed == true){ // completed Array
             newBeatmapsets.completed = newBeatmapsets.completed.filter((beatmapset) => {
                 beatmapset != null && beatmapset.beatmapset_id !== beatmapset_id
             });
 
-            if ((newBeatmapsets.completed.length % 2) == 1){
-                newBeatmapsets.completed.push(default_beatmapset)
+            while (newBeatmapsets.completed.length < 2 || (newBeatmapsets.completed.length % 2) == 1){
+                newBeatmapsets.completed.push(null)
             }
         }
 
@@ -50,7 +46,7 @@
             <h1 class="text-xl font-bold p-5 text-center">Work In Progress</h1>
             <div class="pb-5 gap-3 grid grid-cols-2">
                 {#each data.beatmapsets.wip as bm}
-                    <BeatmapCard beatmapset={bm} deleteBeatmapsetParent={deleteBeatmapsetParent} parentInvalidateAll={() => { invalidate('custom:page') }} />
+                    <BeatmapCard beatmapset={bm} completedParent={false} deleteBeatmapsetParent={deleteBeatmapsetParent} parentInvalidateAll={() => { invalidate('custom:page') }} />
                 {/each}
             </div>
         </div>
@@ -58,7 +54,7 @@
             <h1 class="text-xl font-bold p-5 text-center">Completed</h1>
             <div class="pb-5 gap-3 grid grid-cols-2">
                 {#each data.beatmapsets.completed as bm}
-                    <BeatmapCard beatmapset={bm} deleteBeatmapsetParent={deleteBeatmapsetParent} parentInvalidateAll={() => { invalidate('custom:page') }} />
+                    <BeatmapCard beatmapset={bm} completedParent={true} deleteBeatmapsetParent={deleteBeatmapsetParent} parentInvalidateAll={() => { invalidate('custom:page') }} />
                 {/each}
             </div>
         </div>

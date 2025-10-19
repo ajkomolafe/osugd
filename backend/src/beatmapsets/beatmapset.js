@@ -5,7 +5,6 @@ const beatmapsetSchema = new mongoose.Schema({
     beatmapset_id: { //pk
         type: Number,
         required: true,
-        unique: true,
     },
     ogd_user_id: { //pk
         type: Number,
