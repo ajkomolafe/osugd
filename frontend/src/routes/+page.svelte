@@ -65,7 +65,7 @@
     </div>
 {:else}
     <div class="flex flex-col items-center justify-center w-full">
-        <img src={favicon} alt="edit" class="w-60 h-60 light:invert" />
+        <img src={favicon} alt="edit" class="w-60 h-60 brightness-0 dark:invert" />
         <h1 class="text-2xl text-center font-bold">ogd - Trello for osu! GDs with In-Game Reminders</h1>
         <br>
         <p class="text-center">You are not logged in. Login with osu! to see more.</p>
