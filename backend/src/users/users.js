@@ -2,6 +2,7 @@ import axios from 'axios';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { getCookie } from '../cookie.js'
+import { getUser } from './getUser.js'
 import { response_codes } from '../response_codes.js';
 
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 
 // GET: Get User
 router.get("/", async (req, res) => {
+
     const cookie = getCookie(req, "session")
     if (cookie == null) {
         return res.status(response_codes.BAD_REQUEST).json({

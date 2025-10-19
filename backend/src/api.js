@@ -15,6 +15,7 @@ const api = express();
 mongoose.connect(process.env.DATABASE_URI, {
     dbName: "prod",
     serverSelectionTimeoutMS: 5000, //5 sec
+	writeConcern: { w: 'majority' },
 });
 const db = mongoose.connection;
 db.on("error", (error) => console.log(error));
@@ -50,12 +51,12 @@ async function checkReminders() {
 
 			const total_user_beatmapsets_promise = Beatmapset.countDocuments({
 				ogd_user_id: reminder.ogd_user_id,
-				$or: [{status: "pending"}, {status: "graveyard"}]
+				wip_status: true,
 			}).exec();
 
 			const beatmapsets_promise = Beatmapset.find({
 				ogd_user_id: reminder.ogd_user_id,
-				$or: [{status: "pending"}, {status: "graveyard"}]
+				wip_status: true,
 			}).limit(2).exec();
 
 			const [total_user_beatmapsets, beatmapsets] = await Promise.all([total_user_beatmapsets_promise, beatmapsets_promise])

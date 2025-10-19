@@ -1,4 +1,4 @@
 # osugd
-Reminder + Collection for osu! Guest Difficulties
+Trello for osu! GDs with In-Game Reminders
 
 https://ogd.isle.to/

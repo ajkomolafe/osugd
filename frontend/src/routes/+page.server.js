@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { BACKEND_ADDRESS } from '$env/static/private';
 
-async function getBeatmapsets(session, wip_status){
+async function getBeatmapsets(session, completed){
     let response = await axios.get(BACKEND_ADDRESS + "/api/beatmapsets", {
         headers: {
             'Cookie': "session=" + session
         },
         params: {
-            wip_status: wip_status,
+            completed: completed,
         },
     })
 
@@ -25,14 +25,14 @@ export async function load({ parent, cookies, url, depends }) {
     if (session != null) {
         try {
             const [wip, completed] = await Promise.all([
+                getBeatmapsets(session, false),
                 getBeatmapsets(session, true),
-                getBeatmapsets(session, "false"),
             ])
-            const max_length = Math.min(Math.max(wip.length, completed.length), 10)
-            while (wip.length < max_length || wip.length % 2 == 1){
+            // const max_length = Math.min(Math.max(wip.length, completed.length, 1), 10)
+            while (wip.length < 2 || wip.length % 2 == 1){
                 wip.push(null)
             }
-            while (completed.length < max_length || completed.length % 2 == 1){
+            while (completed.length < 2 || completed.length % 2 == 1){
                 completed.push(null)
             }
 

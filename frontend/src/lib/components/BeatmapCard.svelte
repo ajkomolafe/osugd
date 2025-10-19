@@ -6,25 +6,26 @@
     import { Input } from "$lib/components/ui/input/index.js"
   	import { Label } from "$lib/components/ui/label/index.js"
     import { Button } from "$lib/components/ui/button/index.js"
+    import { Switch } from "$lib/components/ui/switch/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js"
 
-    let { beatmapset, deleteBeatmapsetParent } = $props();
+    let { beatmapset, deleteBeatmapsetParent, parentInvalidateAll } = $props();
 
     const defaults = {
         cover: cover,
     }
     beatmapset = { ...defaults, ...beatmapset };
 
-    // let link = $state("")
 	let difficulty = $state(beatmapset.difficulty)
-	let dialogOpen = $state(false)
+	let editBeatmapDialogOpen = $state(false)
     let isHovering = $state(false)
+    let completed = $state(beatmapset.completed)
 
     async function editBeatmapset() {
         let link = "https://osu.ppy.sh/s/" + beatmapset.beatmapset_id
 		const response = await fetch('/api/beatmapsets', {
 			method: 'POST',
-			body: JSON.stringify({ link, difficulty }),
+			body: JSON.stringify({ link, difficulty, completed }),
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -47,9 +48,13 @@
 			
 		} else {
 			toast.success("Sucessfully added beatmapset!")
-			dialogOpen = false;
+			editBeatmapDialogOpen = false;
 			beatmapset.difficulty = difficulty
 		}
+
+        if (completed != beatmapset.completed){
+            parentInvalidateAll()
+        }
 	}
 
     async function deleteBeatmapset() {
@@ -80,7 +85,7 @@
 			
 		} else {
 			toast.success("Sucessfully deleted beatmapset!")
-            deleteBeatmapsetParent(beatmapset.beatmapset_id, beatmapset.wip_status)
+            deleteBeatmapsetParent(beatmapset.beatmapset_id, beatmapset.completed)
 		}
 	}
     
@@ -99,17 +104,22 @@
 </script>
 
 <!-- on click of the dialogue, the overflow thing is popping out still so get that checked -->
-<Dialog.Root bind:open={dialogOpen}>
+<!-- Edit Beatmap Dialog -->
+<Dialog.Root bind:open={editBeatmapDialogOpen}>
     <Dialog.Content class="w-150">
         <Dialog.Header>
             <Dialog.Title>Edit {beatmapset.title}</Dialog.Title>
             <Dialog.Description>
-                Change the guest difficulty name.
+                Change the guest difficulty name or WIP status.
             </Dialog.Description>
         </Dialog.Header>
         <div class="grid gap-4 py-4">
             <div class="grid grid-cols-4 items-center gap-4">
-                <Label for="difficulty" class="text-right">Difficulty</Label>
+                <Label for="completed" class="text-right">Completed</Label>
+                <Switch bind:checked={completed} />
+            </div>
+            <div class="grid grid-cols-4 items-center gap-4">
+                <Label for="difficulty" class="text-right">Difficulty Name</Label>
                 <Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={"Expert"} />
             </div>
         </div>
@@ -154,42 +164,12 @@
         </a>
         <div 
             class="rounded-lg bg-gray-300 flex flex-col justify-center items-center space-y-6 absolute top-0 right-0 h-full w-16 transform transition-transform duration-300 ease-in-out"
-            class:translate-x-0={isHovering && !dialogOpen}
-            class:translate-x-full={!isHovering || dialogOpen}
+            class:translate-x-0={isHovering && !editBeatmapDialogOpen}
+            class:translate-x-full={!isHovering || editBeatmapDialogOpen}
         >
-            {#if beatmapset.wip_status == true}
-                <!-- Right arrow to move to Completed -->
-                <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    stroke-width="2" 
-                    stroke-linecap="round" 
-                    stroke-linejoin="round"
-                    class="w-4 h-4 filter brightness-0 light:invert cursor-pointer">
-                    <path d="M5 12h14"/>
-                    <path d="M12 5l7 7-7 7"/>
-                </svg>
-                <button onclick={() => { dialogOpen = true; }}>
+            {#if beatmapset.completed == false}
+                <button onclick={() => { editBeatmapDialogOpen = true; }}>
                     <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 light:invert cursor-pointer" />
-                </button>
-            {:else}
-                <!-- Left arrow to move to WIP -->
-                <button onclick={() => { dialogOpen = true; }}>
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        stroke-width="2" 
-                        stroke-linecap="round" 
-                        stroke-linejoin="round"
-                        class="w-4 h-4 filter brightness-0 light:invert cursor-pointer">
-                        <path d="M19 12H5"/>
-                        <path d="M12 19L5 12 12 5"/>
-                    </svg>
-                    <!-- <img src={edit_pencil} alt="edit" class="w-4 h-4 filter brightness-0 light:invert cursor-pointer" /> -->
                 </button>
             {/if}
             <button onclick={deleteBeatmapset}> <!-- open a dialog that says are you sure you want to delete <> -->

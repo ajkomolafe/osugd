@@ -38,6 +38,8 @@ async function getUpdateUser(cookie){
     catch (err) {
         console.log(err)
     }
+
+    return null
 }
 
 async function getUser(cookie){
@@ -62,6 +64,8 @@ async function getUser(cookie){
     catch (err) {
         console.log(err)
     }
+
+    return null
 }
 
 export { getUpdateUser, getUser }

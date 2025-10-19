@@ -27,6 +27,13 @@ async function getUser(session){
         }
     })
 
+    if (response.data.username == null || response.data.avatar_url == null){
+        return {
+            user: null,
+            toast: true,
+        }
+    }
+
     const username = response.data.username
     const avatar_url = response.data.avatar_url
 
@@ -35,6 +42,7 @@ async function getUser(session){
             username: username,
             avatar_url: avatar_url,
         },
+        toast: false,
     }
 }
 
@@ -107,5 +115,6 @@ export async function load({ cookies, url, depends }) {
 
     return {
         user: null,
+        toast: false,
     }
 }

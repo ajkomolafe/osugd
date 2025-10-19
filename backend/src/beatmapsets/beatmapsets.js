@@ -32,21 +32,21 @@ function parseLink(link){
 
 // GET: Get Beatmapsets (Paginated)
 router.get("/", async (req, res) => {
-    let wip_status = req.query.wip_status
-    if (wip_status == null){
+    let completed = req.query.completed
+    if (completed == null){
         return res.status(response_codes.BAD_REQUEST).json({
-            hint: "wip_status is empty"
+            hint: "completed is empty"
         })
     }
-    if (wip_status === "true"){
-        wip_status = true
+    if (completed === "true"){
+        completed = true
     }
-    if (wip_status === "false"){
-        wip_status = false
+    if (completed === "false"){
+        completed = false
     }
-    if (!(wip_status === true || wip_status === false)){
+    if (!(completed === true || completed === false)){
         return res.status(response_codes.BAD_REQUEST).json({
-            hint: "wip_status must be a boolean value"
+            hint: "completed must be a boolean value"
         })
     }
 
@@ -74,7 +74,7 @@ router.get("/", async (req, res) => {
 
         const beatmapsets = await Beatmapset.find({
             ogd_user_id: ogd_user_id,
-            wip_status: wip_status,
+            completed: completed,
         }).limit(3);
 
         console.log("GET /api/beatmapsets/: " + response.data.username)
@@ -128,21 +128,21 @@ router.post("/", async (req, res) => {
         })
     }
 
-    let wip_status = req.body.wip_status
-    if (wip_status == null){
+    let completed = req.body.completed
+    if (completed == null){
         return res.status(response_codes.BAD_REQUEST).json({
-            hint: "wip_status is empty"
+            hint: "completed is empty"
         })
     }
-    if (wip_status === "true"){
-        wip_status = true
+    if (completed === "true"){
+        completed = true
     }
-    if (wip_status === "false"){
-        wip_status = false
+    if (completed === "false"){
+        completed = false
     }
-    if (!(wip_status === true || wip_status === false)){
+    if (!(completed === true || completed === false)){
         return res.status(response_codes.BAD_REQUEST).json({
-            hint: "wip_status must be a boolean value"
+            hint: "completed must be a boolean value"
         })
     }
 
@@ -173,7 +173,7 @@ router.post("/", async (req, res) => {
                 cover: response.data.covers['card@2x'],
                 source: response.data.source,
                 status: response.data.status,
-                wip_status: wip_status,
+                completed: completed,
                 title: response.data.title,
                 title_unicode: response.data.title_unicode,
                 creator_id: response.data.user_id,

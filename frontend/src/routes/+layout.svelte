@@ -17,6 +17,7 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { redirect, isRedirect } from '@sveltejs/kit';
+	import { onMount } from 'svelte';
 
 	import Calendar from "$lib/components/ui/calendar/calendar.svelte";
 	import * as Popover from "$lib/components/ui/popover/index.js";
@@ -36,16 +37,24 @@
 	let updateReminderCalendarPopoverOpen = $state(false)
 	let updateReminderStartDate = $state(today(getLocalTimeZone()))
 	let updateReminderStartTime = $state(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }))
-
+	
 	//remove code query param after load
 	if (browser){
 		window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
+		console.log(data)
+		onMount(() => {
+			if (data.toast == true) {
+				toast.error("Error logging in", {
+					description: "Error logging in, try again later.",
+				});
+			}
+		});
 	}
 
-	async function addBeatmapset(wip_status) {
+	async function addBeatmapset(completed) {
 		const response = await fetch('/api/beatmapsets', {
 			method: 'POST',
-			body: JSON.stringify({ link, difficulty, wip_status }),
+			body: JSON.stringify({ link, difficulty, completed }),
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -156,7 +165,7 @@
 			</div>
 		</div>
 		<Dialog.Footer>
-			<Button type="submit" class="cursor-pointer" onclick={ () => {addBeatmapset(true)} }>Submit</Button>
+			<Button type="submit" class="cursor-pointer" onclick={ () => {addBeatmapset(false)} }>Submit</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
@@ -231,7 +240,8 @@
 </Dialog.Root>
 
 <!-- Main Objects -->
-<div class="center w-320 mx-auto pt-5">
+<!-- w-100 on mobile -->
+<div class="px-2 center w-320 mx-auto pt-5">
 	<header class="flex justify-between items-center mb-8 outline p-4 rounded-lg">
 		<div class="flex items-center gap-4">
 			 <a href="/">

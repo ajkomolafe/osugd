@@ -39,7 +39,7 @@ const beatmapsetSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    wip_status: {
+    completed: {
         type: Boolean,
         required: true,
     },
@@ -57,6 +57,10 @@ const beatmapsetSchema = new mongoose.Schema({
     },
     creator_username: {
         type: String,
+        required: true,
+    },
+    added_time: {
+        type: Number,
         required: true,
     }
 })
