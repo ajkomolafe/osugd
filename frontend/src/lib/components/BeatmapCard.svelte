@@ -24,7 +24,7 @@
     async function editBeatmapset() {
         let link = "https://osu.ppy.sh/s/" + beatmapset.beatmapset_id
 		const response = await fetch('/api/beatmapsets', {
-			method: 'POST',
+			method: 'PATCH',
 			body: JSON.stringify({ link, difficulty, completed }),
 			headers: {
 				'content-type': 'application/json'

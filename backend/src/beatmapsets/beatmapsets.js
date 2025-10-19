@@ -75,7 +75,7 @@ router.get("/", async (req, res) => {
         const beatmapsets = await Beatmapset.find({
             ogd_user_id: ogd_user_id,
             completed: completed,
-        }).limit(3);
+        }).limit(10);
 
         console.log("GET /api/beatmapsets/: " + response.data.username)
 
@@ -161,6 +161,106 @@ router.post("/", async (req, res) => {
             },
         })
 
+        let added_time = Date.now() / 1000
+        console.log(response.data.id)
+        try {
+            let res = await Beatmapset.create(
+                { 
+                    beatmapset_id: response.data.id,
+                    ogd_user_id: ogd_user_id,
+                    difficulty: difficulty,
+                    artist: response.data.artist,
+                    artist_unicode: response.data.artist_unicode,
+                    cover: response.data.covers['card@2x'],
+                    source: response.data.source,
+                    status: response.data.status,
+                    completed: completed,
+                    title: response.data.title,
+                    title_unicode: response.data.title_unicode,
+                    creator_id: response.data.user_id,
+                    creator_username: response.data.creator,
+                    added_time: added_time,
+                }
+            )
+        }
+        catch (err) {
+            console.log(err)
+            console.log("POST /api/beatmapsets/: Error adding to database, beatmap likely already exists for this user")
+            return res.status(response_codes.BAD_REQUEST).json({ hint: "error adding to database" });
+        }
+
+        console.log("POST /api/beatmapsets/: " + username)
+
+        res.status(response_codes.OK).json()
+    }
+    catch (err) {
+        console.log("POST /api/beatmapsets/: Error: " + err.message)
+        return res.status(400).json({ message: err.message });
+    }
+});
+
+// PATCH: Update Beatmapset (without modifying added_time)
+router.patch("/", async (req, res) => {
+    const cookie = getCookie(req, "session")
+    if (cookie == null) {
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "missing cookie"
+        })
+    }
+    const unhashedCookie = jwt.verify(cookie, process.env.JWT_SECRET)
+    if (unhashedCookie.expireTime == null || unhashedCookie.accessToken == null || unhashedCookie.refreshToken == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "cookie is an invalid format"
+        })
+    }
+    
+    const link = req.body.link
+    let beatmapsetId = parseLink(link)
+    if (beatmapsetId == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "link is invalid"
+        })
+    }
+    const difficulty = req.body.difficulty
+    if (difficulty == null || difficulty == "") {
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "difficulty is empty"
+        })
+    }
+
+    let completed = req.body.completed
+    if (completed == null){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "completed is empty"
+        })
+    }
+    if (completed === "true"){
+        completed = true
+    }
+    if (completed === "false"){
+        completed = false
+    }
+    if (!(completed === true || completed === false)){
+        return res.status(response_codes.BAD_REQUEST).json({
+            hint: "completed must be a boolean value"
+        })
+    }
+
+    try {
+        let response = await axios.get("https://osu.ppy.sh/api/v2/me", {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+        const ogd_user_id = response.data.id
+        const username = response.data.username
+
+        response = await axios.get("https://osu.ppy.sh/api/v2/beatmapsets/" + beatmapsetId, {
+            headers: {
+                "Authorization": "Bearer " + unhashedCookie.accessToken,
+            },
+        })
+
         await Beatmapset.updateOne(
             { 
                 beatmapset_id: response.data.id,
@@ -181,7 +281,6 @@ router.post("/", async (req, res) => {
             },
             { 
                 runValidators: true,
-                upsert: true,
             }
         ).catch((err) => {
             console.log("POST /api/beatmapsets/: Error adding to database")
