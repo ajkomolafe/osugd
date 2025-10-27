@@ -51,12 +51,12 @@ async function checkReminders() {
 
 			const total_user_beatmapsets_promise = Beatmapset.countDocuments({
 				ogd_user_id: reminder.ogd_user_id,
-				wip_status: true,
+				completed: false,
 			}).exec();
 
 			const beatmapsets_promise = Beatmapset.find({
 				ogd_user_id: reminder.ogd_user_id,
-				wip_status: true,
+				completed: false,
 			}).limit(2).exec();
 
 			const [total_user_beatmapsets, beatmapsets] = await Promise.all([total_user_beatmapsets_promise, beatmapsets_promise])
@@ -91,10 +91,15 @@ async function checkReminders() {
 			let user = await client.getUserById(Number(reminder.ogd_user_id))
 			await user.sendMessage(message)
 
+			let next_reminder_time = reminder.last_reminder
+			while (next_reminder_time < (Date.now() / 1000)){
+				next_reminder_time += reminder.reminder_frequency
+			}
+
 			await Reminder.findOneAndUpdate({
 				ogd_user_id: reminder.ogd_user_id,
 			}, {
-				last_reminder: reminder.last_reminder + reminder.reminder_frequency,
+				last_reminder: next_reminder_time,
 			}).orFail()
 			
 			console.log("Reminded user " + user.ircUsername + " at " + (new Date()).toLocaleString('en-US', {
