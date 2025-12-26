@@ -1,5 +1,8 @@
 import axios from 'axios';
-import { BACKEND_ADDRESS } from '$env/static/private';
+import { env } from '$env/dynamic/public';
+
+const CLIENT_ID = env.PUBLIC_CLIENT_ID;
+const BACKEND_ADDRESS = env.PUBLIC_BACKEND_ADDRESS;
 
 async function getBeatmapsets(session, completed){
     let response = await axios.get(BACKEND_ADDRESS + "/api/beatmapsets", {

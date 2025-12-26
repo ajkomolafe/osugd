@@ -34,7 +34,7 @@ if (port == null || port == "") {
   port = 3000;
 }
 
-api.listen(port, () => console.log("API Started"));
+api.listen(port, () => console.log("API Listening on 127.0.0.1:" + port));
 
 function beatmapsetLink(beatmapset_id){
 	return "https://osu.ppy.sh/s/" + beatmapset_id

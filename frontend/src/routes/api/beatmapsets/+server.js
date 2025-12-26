@@ -1,6 +1,9 @@
 import axios from "axios"
-import { BACKEND_ADDRESS } from '$env/static/private';
 import { json } from '@sveltejs/kit';
+import { env } from '$env/dynamic/public';
+
+const CLIENT_ID = env.PUBLIC_CLIENT_ID;
+const BACKEND_ADDRESS = env.PUBLIC_BACKEND_ADDRESS;
 
 export async function POST({ request, cookies }) {
     const { link, difficulty, completed } = await request.json()

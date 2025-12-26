@@ -1,0 +1,26 @@
+services:
+  ogd-backend:
+    build:
+      context: ./backend
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+    env_file:
+      - ./backend/.env
+    container_name: ogd-backend
+    restart: always #restart on boot
+  ogd-frontend:
+    build:
+      context: ./frontend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+    ports:
+      - 3001:3001
+    env_file:
+      - ./frontend/.env
+    container_name: ogd-frontend
+    depends_on:
+      - ogd-backend
+    restart: always #restart on boot

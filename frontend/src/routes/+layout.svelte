@@ -23,8 +23,10 @@
 	import * as Popover from "$lib/components/ui/popover/index.js";
 	import { today, getLocalTimeZone } from "@internationalized/date";
 
-  	const client_id = import.meta.env.VITE_CLIENT_ID
-	const backend_address = import.meta.env.VITE_BACKEND_ADDRESS
+	import { env } from '$env/dynamic/public';
+
+	const CLIENT_ID = env.PUBLIC_CLIENT_ID;
+	const BACKEND_ADDRESS = env.PUBLIC_BACKEND_ADDRESS;
 	const default_avatar_url = "https://osu.ppy.sh/images/layout/avatar-guest@2x.png"
 	let { data, children } = $props()
 	let link = $state("")
@@ -322,7 +324,7 @@
 				{:else}
 					<Button
 						variant="outline"
-						href={"https://osu.ppy.sh/oauth/authorize?client_id=" + client_id + "&response_type=code&scope=public+identify&redirect_uri=" + page.url.origin}
+						href={"https://osu.ppy.sh/oauth/authorize?client_id=" + CLIENT_ID + "&response_type=code&scope=public+identify&redirect_uri=" + page.url.origin}
 						class="mr-2 h-14 p-4"
 					>
 						<img
