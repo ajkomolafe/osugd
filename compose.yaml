@@ -9,10 +9,13 @@ services:
     env_file:
       - ./backend/.env
     container_name: ogd-backend
+    depends_on:
+      - mongodb
     restart: always #restart on boot
   ogd-frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev #change on prod
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -24,3 +27,19 @@ services:
     depends_on:
       - ogd-backend
     restart: always #restart on boot
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: admin
+    command: ["--auth"]
+    restart: always #restart on boot
+
+volumes:
+  mongo_data:

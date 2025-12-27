@@ -3,6 +3,9 @@ import { env } from '$env/dynamic/public';
 
 const CLIENT_ID = env.PUBLIC_CLIENT_ID;
 const BACKEND_ADDRESS = env.PUBLIC_BACKEND_ADDRESS;
+const PUBLIC_ENVIRONMENT = env.PUBLIC_ENVIRONMENT;
+const PUBLIC_DEVELOPMENT_REDIRECT_ADDRESS = env.PUBLIC_DEVELOPMENT_REDIRECT_ADDRESS;
+const PUBLIC_PRODUCTION_REDIRECT_ADDRESS = env.PUBLIC_PRODUCTION_REDIRECT_ADDRESS;
 
 // try getuser with session, if expired, get cookie and retry
 
@@ -67,6 +70,10 @@ async function refreshSession(cookies, session){
 export async function load({ cookies, url, depends }) {
     depends('custom:layout');
     let session = cookies.get("session");
+    let redirect_uri = PUBLIC_PRODUCTION_REDIRECT_ADDRESS
+    if (PUBLIC_ENVIRONMENT == "development"){
+        redirect_uri = PUBLIC_DEVELOPMENT_REDIRECT_ADDRESS
+    }
     if (session != null) {
         try {
             let res = await getUser(session)
@@ -101,7 +108,7 @@ export async function load({ cookies, url, depends }) {
     const code = url.searchParams.get("code");
     if (code != null){
         try {
-            await getCookie(cookies, code, url.origin)
+            await getCookie(cookies, code, redirect_uri)
             session = cookies.get("session");
             let res = await getUser(session)
             return res

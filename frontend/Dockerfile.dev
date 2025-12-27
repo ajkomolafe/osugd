@@ -1,0 +1,33 @@
+ARG NODE_VERSION=22.19.0
+
+################################################################################
+# Use node image for base image for all stages.
+FROM node:${NODE_VERSION}-alpine as base
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Install dependencies (including devDependencies, needed for preview)
+FROM base as deps
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Build the app
+FROM deps as build
+COPY . .
+RUN npm run build
+
+# Final image for running preview
+FROM base as final
+
+ENV NODE_ENV=production
+WORKDIR /usr/src/app
+
+# Copy app files and node_modules from deps/build
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app ./
+
+EXPOSE 3001
+
+# Run preview
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3001"]

@@ -27,6 +27,10 @@
 
 	const CLIENT_ID = env.PUBLIC_CLIENT_ID;
 	const BACKEND_ADDRESS = env.PUBLIC_BACKEND_ADDRESS;
+	const ENVIRONMENT = env.PUBLIC_ENVIRONMENT;
+	const PUBLIC_DEVELOPMENT_REDIRECT_ADDRESS = env.PUBLIC_DEVELOPMENT_REDIRECT_ADDRESS;
+	const PUBLIC_PRODUCTION_REDIRECT_ADDRESS = env.PUBLIC_PRODUCTION_REDIRECT_ADDRESS;
+
 	const default_avatar_url = "https://osu.ppy.sh/images/layout/avatar-guest@2x.png"
 	let { data, children } = $props()
 	let link = $state("")
@@ -40,18 +44,23 @@
 	let updateReminderStartDate = $state(today(getLocalTimeZone()))
 	let updateReminderStartTime = $state(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }))
 	
+
+	let mounted = false
+
 	//remove code query param after load
-	if (browser){
-		window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
-		console.log(data)
-		onMount(() => {
+	onMount(() => {
+		mounted = true
+		console.log(browser)
+		if (browser){
+			window.history.replaceState("", document.title, window.location.origin + window.location.pathname );
+			console.log(data)
 			if (data.toast == true) {
 				toast.error("Error logging in", {
 					description: "Error logging in, try again later.",
 				});
 			}
-		});
-	}
+		}
+	});
 
 	async function addBeatmapset(completed) {
 		const response = await fetch('/api/beatmapsets', {
@@ -142,104 +151,106 @@
 	<meta content="#43B581" data-react-helmet="true" name="theme-color" />
 </svelte:head>
 
-<Toaster 
-	position="top-center"
-	richColors
-/>
+{#if mounted}
+	<Toaster 
+		position="top-center"
+		richColors
+	/>
 
-<!-- Add Beatmap Dialog -->
-<Dialog.Root bind:open={addBeatmapDialog}>
-	<Dialog.Content class="w-150">
-		<Dialog.Header>
-			<Dialog.Title>Add Beatmapset</Dialog.Title>
-			<Dialog.Description>
-				Add a new beatmapset to be tracked.
-			</Dialog.Description>
-		</Dialog.Header>
-		<div class="grid gap-4 py-4">
-			<div class="grid grid-cols-4 items-center gap-4">
-				<Label for="link" class="text-right">Link</Label>
-				<Input id="link" class="col-span-3" bind:value={link} placeholder="https://osu.ppy.sh/beatmapsets/..." />
-			</div>
-			<div class="grid grid-cols-4 items-center gap-4">
-				<Label for="difficulty" class="text-right">Difficulty</Label>
-				<Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={data.user.username + "'s Expert"} />
-			</div>
-		</div>
-		<Dialog.Footer>
-			<Button type="submit" class="cursor-pointer" onclick={ () => {addBeatmapset(false)} }>Submit</Button>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
-
-<!-- Set Reminder Dialog -->
-<Dialog.Root bind:open={updateReminderDialog}>
-	<Dialog.Content class="w-150">
-		<Dialog.Header>
-			<Dialog.Title>Set Reminder Schedule</Dialog.Title>
-			<Dialog.Description>
-				Set the schedule to be reminded to complete your guest difficulties. There is a minimum of 6 hours between reminders.
-			</Dialog.Description>
-		</Dialog.Header>
-		<div class="grid gap-4 py-4">
-			<div class="grid grid-cols-[max-content_1fr_1fr_1fr] items-center gap-4">
-				<Label for="remind-every">Remind every</Label>
-				<div class="col-span-3 flex items-center gap-2">
-					<Input type="number" min="0" max="7" placeholder="days" bind:value={updateReminderDays}/>
-					<Input type="number" min="0" max="23" placeholder="hours" bind:value={updateReminderHours}/>
-					<Input type="number" min="0" max="59" placeholder="mins" bind:value={updateReminderMins}/>
+	<!-- Add Beatmap Dialog -->
+	<Dialog.Root bind:open={addBeatmapDialog}>
+		<Dialog.Content class="w-150">
+			<Dialog.Header>
+				<Dialog.Title>Add Beatmapset</Dialog.Title>
+				<Dialog.Description>
+					Add a new beatmapset to be tracked.
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="grid gap-4 py-4">
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Label for="link" class="text-right">Link</Label>
+					<Input id="link" class="col-span-3" bind:value={link} placeholder="https://osu.ppy.sh/beatmapsets/..." />
 				</div>
-				<Label for="starting-from">Starting from</Label>
-				<div class="col-span-3 grid grid-cols-3 gap-2">
-					<Popover.Root class="w-full">
-						<Popover.Trigger>
-							<Button
-								variant="outline"
-								class="justify-start text-left w-full font-normal"
-							>
-								{updateReminderStartDate
-								? updateReminderStartDate.toDate(getLocalTimeZone()).toLocaleDateString()
-								: "date"}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									class="mr-2 h-4 w-4"
-									>
-									<path d="M6 9l6 6 6-6" />
-								</svg>
-							</Button>
-						</Popover.Trigger>
-						<Popover.Content class="w-auto overflow-hidden p-0" align="start">
-							<Calendar
-							type="single"
-							bind:value={updateReminderStartDate}
-							captionLayout="dropdown"
-							/>
-						</Popover.Content>
-					</Popover.Root>
-					<Input
-					type="time"
-					id="time"
-					step="60"
-					bind:value={updateReminderStartTime}
-					class="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-					/>
-					<div class="flex-1"></div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Label for="difficulty" class="text-right">Difficulty</Label>
+					<Input id="difficulty" class="col-span-3" bind:value={difficulty} placeholder={data.user.username + "'s Expert"} />
 				</div>
 			</div>
-		</div>
-		<Dialog.Footer>
-			<Button type="submit" class="cursor-pointer" onclick={addReminder}>Submit</Button>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+			<Dialog.Footer>
+				<Button type="submit" class="cursor-pointer" onclick={ () => {addBeatmapset(false)} }>Submit</Button>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+
+	<!-- Set Reminder Dialog -->
+	<Dialog.Root bind:open={updateReminderDialog}>
+		<Dialog.Content class="w-150">
+			<Dialog.Header>
+				<Dialog.Title>Set Reminder Schedule</Dialog.Title>
+				<Dialog.Description>
+					Set the schedule to be reminded to complete your guest difficulties. There is a minimum of 6 hours between reminders.
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="grid gap-4 py-4">
+				<div class="grid grid-cols-[max-content_1fr_1fr_1fr] items-center gap-4">
+					<Label for="remind-every">Remind every</Label>
+					<div class="col-span-3 flex items-center gap-2">
+						<Input type="number" min="0" max="7" placeholder="days" bind:value={updateReminderDays}/>
+						<Input type="number" min="0" max="23" placeholder="hours" bind:value={updateReminderHours}/>
+						<Input type="number" min="0" max="59" placeholder="mins" bind:value={updateReminderMins}/>
+					</div>
+					<Label for="starting-from">Starting from</Label>
+					<div class="col-span-3 grid grid-cols-3 gap-2">
+						<Popover.Root class="w-full">
+							<Popover.Trigger>
+								<Button
+									variant="outline"
+									class="justify-start text-left w-full font-normal"
+								>
+									{updateReminderStartDate
+									? updateReminderStartDate.toDate(getLocalTimeZone()).toLocaleDateString()
+									: "date"}
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="mr-2 h-4 w-4"
+										>
+										<path d="M6 9l6 6 6-6" />
+									</svg>
+								</Button>
+							</Popover.Trigger>
+							<Popover.Content class="w-auto overflow-hidden p-0" align="start">
+								<Calendar
+								type="single"
+								bind:value={updateReminderStartDate}
+								captionLayout="dropdown"
+								/>
+							</Popover.Content>
+						</Popover.Root>
+						<Input
+						type="time"
+						id="time"
+						step="60"
+						bind:value={updateReminderStartTime}
+						class="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+						/>
+						<div class="flex-1"></div>
+					</div>
+				</div>
+			</div>
+			<Dialog.Footer>
+				<Button type="submit" class="cursor-pointer" onclick={addReminder}>Submit</Button>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
+{/if}
 
 <!-- Main Objects -->
 <!-- w-100 on mobile -->
